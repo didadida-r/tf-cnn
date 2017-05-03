@@ -1,5 +1,6 @@
 #!/bin/bash
-grep Sum tf-exp/dnn/decode/kaldi_decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh
+grep Sum tf-exp/cnn/decode_dev/*decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh
+grep Sum tf-exp/cnn/decode_test/*decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh
 exit
 # Use caution when comparing these results with other published results.
 Training Set   : 3696 sentences 4620 sentences

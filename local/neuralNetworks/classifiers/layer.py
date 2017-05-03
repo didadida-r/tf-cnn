@@ -155,9 +155,9 @@ class CnnLayer(object):
             inputs_img = tf.reshape(inputs, tf.stack( [ tf.shape(inputs)[0] , 40, 1, 11] )  ) 
             inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )  # N*36*9*3
 
-            conv1 = self.convolution(inputs_img, 'conv_l1', [9, 9, 1, 256], reuse, is_training)
-            pool1 = tf.nn.max_pool(conv1, ksize=[1, 1, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
-            conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], reuse, is_training)
+            conv1 = self.convolution(inputs_img, 'conv_l1', [9, 7, 1, 256], reuse, is_training)
+            pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
+            conv2 = self.convolution(pool1, 'conv_2', [4, 5, 256, 256], reuse, is_training)
             shape = conv2.get_shape().as_list()
             outputs = tf.reshape(conv2, tf.stack( [tf.shape(conv2)[0],  shape[1] * shape[2] * shape[3] ] ) )
         

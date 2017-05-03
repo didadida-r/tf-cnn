@@ -105,7 +105,7 @@ class DNN(Classifier):
             
             #cnn_layer = RestNet()
             #cnn_layer = CnnVd6()
-            cnn_layer = CnnLayer()	
+            cnn_layer = CnnLayer()
             activations[0] = cnn_layer(nonseq_inputs, is_training, reuse, 'layer0')
             for l in range(1, self.num_layers):
                 activations[l] = layer(activations[l-1], is_training, reuse,

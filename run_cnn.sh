@@ -4,10 +4,10 @@
 set -e
 
 feats_nj=10
-stage=-5
+stage=-2
 
 # Config:
-expdir=exp/cnn          # the exp dir
+expdir=tf-exp/cnn          # the exp dir
 logdir=$expdir/log
 gmmdir=exp/tri3                 # the gmm dir
 if [ ! -d $expdir ]; then
@@ -15,7 +15,7 @@ if [ ! -d $expdir ]; then
 fi
 
 Fbank_Feature=false
-fMLLR_Feature=true
+fMLLR_Feature=false
 
 # Prepare feature
 if $Fbank_Feature; then
@@ -81,22 +81,21 @@ if $fMLLR_Feature; then
      $dir data/train $gmmdir $dir/log $dir/data || exit 1
 fi
 
-exit
-
-if [ $stage -le -3 ];then
-echo ============================================================================
-echo "             Get the lda for the nnet training                            "
-echo ============================================================================
+# if [ $stage -le -3 ];then
+# echo ============================================================================
+# echo "             Get the lda for the nnet training                            "
+# echo ============================================================================
  
-steps/tfkaldi/get_lda.sh --cmd "$train_cmd" data-fmllr-tri3/train data/lang exp/tri3_ali $expdir
-fi
+# local/get_lda.sh --cmd "$train_cmd" data-fmllr-tri3/train data/lang exp/tri3_ali $expdir
+# fi
+
 
 if [ $stage -le -2 ];then
 echo ============================================================================
 echo "             Train and decode neural network acoustic model               "
 echo ============================================================================
-
-$cuda_cmd $logdir/dnn_train.log tfcnn.sh
+aviliable_gpu_ids=1
+CUDA_VISIBLE_DEVICES=$aviliable_gpu_ids python3 main.py
 fi
 
 exit

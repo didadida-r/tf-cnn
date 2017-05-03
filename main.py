@@ -22,6 +22,7 @@ import nnet
 #here you can set which steps should be executed. If a step has been executed in the past the result have been saved and the step does not have to be executed again (if nothing has changed)
 TRAIN_NNET = True   #required
 TEST_NNET = True    #required if the performance of the DNN is tested
+DEV_NNET = True
 
 #read config file
 config = configparser.ConfigParser()
@@ -66,7 +67,6 @@ print("the output labels is:" + str(num_labels))
 nnet = nnet.Nnet(config, input_dim, num_labels)
 
 if TRAIN_NNET:
-    start=clock()
     # shuffle the examples on disk
     prepare_data.shuffle_examples(train_features_dir)
       
@@ -114,18 +114,70 @@ if TRAIN_NNET:
     print('------- training neural net ----------')
     
     # use tf-kaldi to process the nnet
-    
     nnet.train(dispenser)
-    finish=clock()
-    print ('the train nnet time is : ' + str((finish-start)/10000))
     
-
-if TEST_NNET:
-    start=clock()
+if DEV_NNET:
     #use the neural net to calculate posteriors for the testing set
-    print('------- computing state pseudo-likelihoods ----------')
+    print('------- Dev: computing state pseudo-likelihoods ----------')
     savedir = store_expdir + '/' + config.get('nnet', 'name')
-    decodedir = savedir + '/decode'
+    decodedir = savedir + '/decode_dev'
+    if not os.path.isdir(decodedir):
+        os.mkdir(decodedir)
+
+    # get maxlength
+    max_input_length = 0
+    total_frames = 0
+    with open(dev_features_dir + "/utt2num_frames", 'r') as f:
+        line = f.readline()
+        while line:
+            x = line.split(' ')[1]
+            total_frames += int(x)
+            if int(x) > max_input_length:
+                max_input_length = int(x)
+            line = f.readline()
+    # 将maxlength写入文件    
+    with open(dev_features_dir + "/maxlength", 'w') as f:
+        f.write("%s"%max_input_length)
+        print("the utt's maxlength is: " + str(max_input_length))
+
+    #create a feature reader
+    with open(dev_features_dir + '/maxlength', 'r') as fid:
+        max_length = int(fid.read())
+    featreader = feature_reader.FeatureReader(dev_features_dir + '/feats.scp', dev_features_dir + '/utt2spk', 
+        int(config.get('nnet', 'context_width')), max_length)
+
+    #create an ark writer for the likelihoods
+    if os.path.isfile(decodedir + '/likelihoods.ark'):
+        os.remove(decodedir + '/likelihoods.ark')
+    writer = ark.ArkWriter(decodedir + '/feats.scp', decodedir + '/likelihoods.ark')
+
+    #decode with te neural net
+    nnet.decode(featreader, writer)
+
+    print('------- decoding dev sets ----------')
+    #copy the gmm model and some files to speaker mapping to the decoding dir
+    os.system('cp %s %s' %(config.get('directories', 'expdir') + '/' + config.get('nnet', 'gmm_name') + '/final.mdl', decodedir))
+    os.system('cp -r %s %s' %(config.get('directories', 'expdir') + '/' + config.get('nnet', 'gmm_name') + '/graph', decodedir))
+    os.system('cp %s %s' %(config.get('directories', 'dev_features') + '/utt2spk', decodedir))
+    os.system('cp %s %s' %(config.get('directories', 'dev_features') + '/text', decodedir))
+    os.system('cp %s %s' %(config.get('directories', 'dev_features') + '/stm', decodedir))
+    os.system('cp %s %s' %(config.get('directories', 'dev_features') + '/glm', decodedir))
+
+    #change directory to kaldi egs
+    os.chdir(config.get('directories', 'prjdir'))
+
+    #decode using kaldi
+    if not os.path.isfile(decodedir + "/decode.log"):
+        os.system('touch %s/decode.log' % (decodedir))
+    os.system('%s/local/kaldi/decode.sh --nj %s %s/graph %s %s/kaldi_decode | tee %s/decode.log || exit 1;' % 
+        (current_dir, config.get('directories', 'decode_num_jobs'), 
+            decodedir, decodedir, decodedir, decodedir))
+    
+if TEST_NNET:
+    #use the neural net to calculate posteriors for the testing set
+    print('------- Test: computing state pseudo-likelihoods ----------')
+    savedir = store_expdir + '/' + config.get('nnet', 'name')
+    decodedir = savedir + '/decode_test'
     if not os.path.isdir(decodedir):
         os.mkdir(decodedir)
 
@@ -156,6 +208,7 @@ if TEST_NNET:
         os.remove(decodedir + '/likelihoods.ark')
     writer = ark.ArkWriter(decodedir + '/feats.scp', decodedir + '/likelihoods.ark')
 
+    print('get the likelihoods')
     #decode with te neural net
     nnet.decode(featreader, writer)
 
@@ -178,8 +231,6 @@ if TEST_NNET:
         (current_dir, config.get('directories', 'decode_num_jobs'), 
             decodedir, decodedir, decodedir, decodedir))
 
-    #get results
-    # the wer in test is 21.9
-    os.system('grep Sum %s/kaldi_decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh' % decodedir)
-    finish=clock()
-    print('the decode time is: ' + str((finish-start)/10000))
+#get results
+# the wer in test is 21.9
+os.system('grep Sum %s/kaldi_decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh' % decodedir)
