@@ -120,46 +120,30 @@ class CnnLayer(object):
     def __init__(self):
         pass
 
-   
-    # def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
-    #     with tf.variable_scope(scope or type(self).__name__, reuse=reuse):          
-    #         inputs_img = tf.reshape(inputs, tf.stack( [ tf.shape(inputs)[0] , 36, 3, 9] )  ) 
-    #         inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )  # N*36*9*3
-
-    #         conv1 = self.convolution(inputs_img, 'conv_l1', 3, 256, 7, 5, reuse, is_training)
-    #         pool1 = tf.nn.max_pool(conv1, ksize=[1, 1, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
-    #         conv2 = self.convolution(pool1, 'conv_2', 256, 256, 4, 3, reuse, is_training)
-    #         shape = conv2.get_shape().as_list()
-    #         outputs = tf.reshape(conv2, tf.stack( [tf.shape(conv2)[0],  shape[1] * shape[2] * shape[3] ] ) )
-        
-    #     return outputs
-
-    # def convolution(self, inputs_img, name, in_dim, out_dim, t_conv_size, f_conv_size, reuse, is_training):
-    #     with tf.variable_scope('parameters_'+name, reuse=reuse):
-    #         n = t_conv_size*f_conv_size*out_dim
-    #         weights = tf.get_variable('weights_'+name, [t_conv_size, f_conv_size, in_dim, out_dim],  initializer = tf.random_normal_initializer(stddev=np.sqrt(2.0 / n)))
-    #         biases = tf.get_variable('biases_'+name,   [out_dim],   initializer=tf.constant_initializer(0) )
-
-    #     with tf.variable_scope('conv_'+name, reuse=reuse):
-    #         conv = tf.nn.conv2d(inputs_img,  weights, [1, 1, 1, 1], padding='VALID')
-    #         conv = tf.contrib.layers.batch_norm(conv,
-    #             is_training=is_training,
-    #             scope='batch_norm',
-    #             reuse = reuse)
-    #         hidden = tf.nn.relu(conv + biases)
-
-    #     return hidden  
-
     def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse):          
             inputs_img = tf.reshape(inputs, tf.stack( [ tf.shape(inputs)[0] , 40, 1, 11] )  ) 
             inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )  # N*36*9*3
 
-            conv1 = self.convolution(inputs_img, 'conv_l1', [9, 7, 1, 256], reuse, is_training)
+            conv1 = self.convolution(inputs_img, 'conv_l1', [9, 9, 1, 256], reuse, is_training)
             pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
-            conv2 = self.convolution(pool1, 'conv_2', [4, 5, 256, 256], reuse, is_training)
+            conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], reuse, is_training)
             shape = conv2.get_shape().as_list()
             outputs = tf.reshape(conv2, tf.stack( [tf.shape(conv2)[0],  shape[1] * shape[2] * shape[3] ] ) )
+            
+            print(inputs_img.shape)
+            print(conv1.shape)
+            print(conv2.shape)
+            print(outputs.shape)
+            
+            if is_training == False:
+                # 从第50帧开始记录
+                tf.summary.image('input_img', inputs_img[50:,:,:,:], 10)
+                #shape = conv1.shape
+                #x1 = tf.reshape(conv1, tf.stack([tf.shape(conv1)[0], shape[1]*16, shape[2]*16, 1]) )
+                #tf.summary.image('conv1', x1, 10)
+                #tf.summary.image('conv2', conv2, 10)
+                #tf.summary.image('conv_img', tf.reshape(outputs, [tf.shape(outputs)[0], tf.shape(outputs)[1], 1, 1]))
         
         return outputs
 

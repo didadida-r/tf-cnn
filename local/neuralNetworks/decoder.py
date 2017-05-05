@@ -42,7 +42,12 @@ class Decoder(object):
 
             #compute the outputs
             self.outputs = tf.nn.softmax(logits)
-
+            
+            # merge all summary during the decoding 
+            self.merged = tf.summary.merge_all()
+            self.summarywriter = tf.summary.FileWriter(logdir="tf-exp/decode_vis", graph=self.graph)
+            self.decode_visualisation = True
+            
         #specify that the graph can no longer be modified after this point
         self.graph.finalize()
 
@@ -66,9 +71,20 @@ class Decoder(object):
             inputs, np.zeros([self.max_length-inputs.shape[0], inputs.shape[1]])
             , 0)
 
-        #pylint: disable=E1101
-        return self.outputs.eval(feed_dict={self.inputs:inputs,
-                                            self.seq_length:seq_length})
+        #pylint: disable=E1101 
+        # 只做一次summary
+        if self.decode_visualisation:
+            outputs, summary = tf.get_default_session().run([self.outputs, self.merged], 
+                                    feed_dict={self.inputs:inputs, self.seq_length:seq_length})
+            self.decode_visualisation = False                        
+            if summary != None:
+                print("decode visualisation Done")
+                self.summarywriter.add_summary(summary)
+                self.summarywriter.close()
+            return outputs
+        else:
+            return self.outputs.eval(feed_dict={self.inputs:inputs,self.seq_length:seq_length})
+
 
     def restore(self, filename):
         '''

@@ -123,8 +123,8 @@ class Nnet(object):
 
         #start the visualization if it is requested
         if self.conf['visualise'] == 'True':
-            if os.path.isdir(self.conf['savedir'] + '/logdir'):
-                shutil.rmtree(self.conf['savedir'] + '/logdir')
+            #if os.path.isdir(self.conf['savedir'] + '/logdir'):
+                #shutil.rmtree(self.conf['savedir'] + '/logdir')
 
             trainer.start_visualization(self.conf['savedir'] + '/logdir')
 
@@ -257,13 +257,14 @@ class Nnet(object):
 
         #read the prior
         prior = np.load(self.conf['savedir'] + '/prior.npy')
-
+        
         #start tensorflow session
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True #pylint: disable=E1101
-        with tf.Session(graph=decoder.graph, config=config):
+        with tf.Session(graph=decoder.graph, config=config) as sess:
 
             #load the model
+            print("load the model")
             decoder.restore(self.conf['savedir'] + '/final')
 
             #feed the utterances one by one to the neural net

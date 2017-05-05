@@ -1,0 +1,694 @@
+nohup: ignoring input
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcublas.so.8.0 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcufft.so.8.0 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcurand.so.8.0 locally
+copy-int-vector 'ark:gunzip -c tf-exp/cnn/ali.binary.gz |' ark:- 
+ali-to-pdf exp/tri3_ali/final.alimdl ark:- ark,t:- 
+LOG (copy-int-vector:main():copy-int-vector.cc:83) Copied 3696 vectors of int32.
+LOG (ali-to-pdf:main():ali-to-pdf.cc:68) Converted 3696 alignments to pdf sequences.
+/home/xiaorong/dev/python3.4/lib/python3.4/site-packages/tensorflow/python/ops/gradients_impl.py:91: UserWarning: Converting sparse IndexedSlices to a dense Tensor of unknown shape. This may consume a large amount of memory.
+  "Converting sparse IndexedSlices to a dense Tensor of unknown shape. "
+WARNING:tensorflow:VARIABLES collection name is deprecated, please use GLOBAL_VARIABLES instead; VARIABLES will be removed after 2017-03-02.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE3 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+E tensorflow/stream_executor/cuda/cuda_driver.cc:509] failed call to cuInit: CUDA_ERROR_NO_DEVICE
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:158] retrieving CUDA diagnostic information for host: compute-0-3
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:165] hostname: compute-0-3
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:189] libcuda reported version is: 375.39.0
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:363] driver version file contents: """NVRM version: NVIDIA UNIX x86_64 Kernel Module  375.39  Tue Jan 31 20:47:00 PST 2017
+GCC version:  gcc version 5.4.1 20160904 (Ubuntu 5.4.1-2ubuntu1~14.04) 
+"""
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:193] kernel reported version is: 375.39.0
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:300] kernel version seems to match DSO: 375.39.0
+/home/xiaorong/code/tf-cnn1/local/kaldi/decode.sh --nj 20 tf-exp/cnn/decode_dev/graph tf-exp/cnn/decode_dev tf-exp/cnn/decode_dev/kaldi_decode
+score best paths
+score confidence and timing with sclite
+Decoding done.
+/home/xiaorong/code/tf-cnn1/local/kaldi/decode.sh --nj 20 tf-exp/cnn/decode_test/graph tf-exp/cnn/decode_test tf-exp/cnn/decode_test/kaldi_decode
+score best paths
+score confidence and timing with sclite
+Decoding done.
+%WER 23.1 | 192 7215 | 79.6 13.7 6.7 2.7 23.1 99.0 | -0.363 | tf-exp/cnn/decode_test/kaldi_decode/score_5/ctm_39phn.filt.sys
+local/neuralNetworks/nnet.py:286: RuntimeWarning: divide by zero encountered in log
+  writer.write_next_utt(utt_id, np.log(output))
+the input dim is:440
+the output labels is:1925
+------- get alignments ----------
+the utt's maxlength is: 777
+------- training neural net ----------
+validation loss at step 0: 7.562680, acc is 0.037357
+step 0/866 loss: 7.562683
+step 1/866 loss: 7.360316
+step 2/866 loss: 8.029273
+step 3/866 loss: 7.471133
+step 4/866 loss: 7.478585
+step 5/866 loss: 7.362772
+step 6/866 loss: 7.230538
+step 7/866 loss: 7.008052
+step 8/866 loss: 6.894316
+step 9/866 loss: 6.669677
+validation loss at step 10: 7.684776, the acc is: 0.006736
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 0/866 loss: 1.668819
+step 1/866 loss: 1.783474
+step 2/866 loss: 1.748994
+step 3/866 loss: 1.773775
+step 4/866 loss: 1.723198
+step 5/866 loss: 1.688669
+step 6/866 loss: 1.688348
+step 7/866 loss: 1.758351
+step 8/866 loss: 1.732542
+step 9/866 loss: 1.799630
+validation loss at step 10: 1.725472, the acc is: 0.534566
+step 10/866 loss: 1.667349
+step 11/866 loss: 1.704086
+step 12/866 loss: 1.716068
+step 13/866 loss: 1.778561
+step 14/866 loss: 1.716656
+step 15/866 loss: 1.671222
+step 16/866 loss: 1.735584
+step 17/866 loss: 1.706485
+step 18/866 loss: 1.764995
+step 19/866 loss: 1.746851
+validation loss at step 20: 1.725910, the acc is: 0.533734
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 10/866 loss: 1.667349
+step 11/866 loss: 1.703594
+step 12/866 loss: 1.715227
+step 13/866 loss: 1.777115
+step 14/866 loss: 1.714264
+step 15/866 loss: 1.669048
+step 16/866 loss: 1.732845
+step 17/866 loss: 1.704095
+step 18/866 loss: 1.761385
+step 19/866 loss: 1.742296
+validation loss at step 20: 1.724909, the acc is: 0.533922
+step 20/866 loss: 1.735389
+step 21/866 loss: 1.785320
+step 22/866 loss: 1.731903
+step 23/866 loss: 1.714428
+step 24/866 loss: 1.714447
+step 25/866 loss: 1.699593
+step 26/866 loss: 1.752165
+step 27/866 loss: 1.730623
+step 28/866 loss: 1.778180
+step 29/866 loss: 1.771335
+validation loss at step 30: 1.725332, the acc is: 0.533251
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 20/866 loss: 1.730480
+step 21/866 loss: 1.773452
+step 22/866 loss: 1.723080
+step 23/866 loss: 1.707218
+step 24/866 loss: 1.711012
+step 25/866 loss: 1.691796
+step 26/866 loss: 1.739015
+step 27/866 loss: 1.722384
+step 28/866 loss: 1.769980
+step 29/866 loss: 1.759931
+validation loss at step 30: 1.721442, the acc is: 0.533466
+step 30/866 loss: 1.778349
+step 31/866 loss: 1.767115
+step 32/866 loss: 1.739619
+step 33/866 loss: 1.737294
+step 34/866 loss: 1.874881
+step 35/866 loss: 1.774547
+step 36/866 loss: 1.820150
+step 37/866 loss: 1.748615
+step 38/866 loss: 1.747430
+step 39/866 loss: 1.746547
+validation loss at step 40: 1.722026, the acc is: 0.534002
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 30/866 loss: 6.522182
+step 31/866 loss: 6.343531
+step 32/866 loss: 6.061788
+step 33/866 loss: 5.961640
+step 34/866 loss: 5.872309
+step 35/866 loss: 5.789515
+step 36/866 loss: 5.698108
+step 37/866 loss: 5.569717
+step 38/866 loss: 5.418270
+step 39/866 loss: 5.308558
+validation loss at step 40: 5.255216, the acc is: 0.096613
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 30/866 loss: 5.311448
+step 31/866 loss: 5.223594
+step 32/866 loss: 5.005399
+step 33/866 loss: 4.976418
+step 34/866 loss: 4.913978
+step 35/866 loss: 4.772730
+step 36/866 loss: 4.773760
+step 37/866 loss: 4.594994
+step 38/866 loss: 4.485080
+step 39/866 loss: 4.466352
+validation loss at step 40: 4.552567, the acc is: 0.135393
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 30/866 loss: 1.774363
+step 31/866 loss: 1.764471
+step 32/866 loss: 1.735913
+step 33/866 loss: 1.734714
+step 34/866 loss: 1.873728
+step 35/866 loss: 1.768066
+step 36/866 loss: 1.815000
+step 37/866 loss: 1.743098
+step 38/866 loss: 1.740585
+step 39/866 loss: 1.740717
+validation loss at step 40: 1.716561, the acc is: 0.535344
+step 40/866 loss: 1.699721
+step 41/866 loss: 1.660810
+step 42/866 loss: 1.714145
+step 43/866 loss: 1.697925
+step 44/866 loss: 1.763754
+step 45/866 loss: 1.740693
+step 46/866 loss: 1.696036
+step 47/866 loss: 1.686828
+step 48/866 loss: 1.756282
+step 49/866 loss: 1.752221
+validation loss at step 50: 1.716642, the acc is: 0.535532
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 40/866 loss: 1.699474
+step 41/866 loss: 1.660684
+step 42/866 loss: 1.714151
+step 43/866 loss: 1.697674
+step 44/866 loss: 1.763407
+step 45/866 loss: 1.740116
+step 46/866 loss: 1.695337
+step 47/866 loss: 1.686088
+step 48/866 loss: 1.755371
+step 49/866 loss: 1.751328
+validation loss at step 50: 1.716395, the acc is: 0.535586
+step 50/866 loss: 1.724285
+step 51/866 loss: 1.662524
+step 52/866 loss: 1.701612
+step 53/866 loss: 1.722356
+step 54/866 loss: 1.722434
+step 55/866 loss: 1.728454
+step 56/866 loss: 1.703250
+step 57/866 loss: 1.774767
+step 58/866 loss: 1.735852
+step 59/866 loss: 1.791440
+validation loss at step 60: 1.716411, the acc is: 0.535720
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 50/866 loss: 1.724332
+step 51/866 loss: 1.662480
+step 52/866 loss: 1.701549
+step 53/866 loss: 1.721960
+step 54/866 loss: 1.722226
+step 55/866 loss: 1.727944
+step 56/866 loss: 1.702645
+step 57/866 loss: 1.774251
+step 58/866 loss: 1.735219
+step 59/866 loss: 1.790902
+validation loss at step 60: 1.716062, the acc is: 0.535693
+step 60/866 loss: 1.707826
+step 61/866 loss: 1.663732
+step 62/866 loss: 1.691116
+step 63/866 loss: 1.716364
+step 64/866 loss: 1.808474
+step 65/866 loss: 1.700171
+step 66/866 loss: 1.673281
+step 67/866 loss: 1.707422
+step 68/866 loss: 1.693879
+step 69/866 loss: 1.787233
+validation loss at step 70: 1.716106, the acc is: 0.535640
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 60/866 loss: 1.707826
+step 61/866 loss: 1.663724
+step 62/866 loss: 1.691095
+step 63/866 loss: 1.716329
+step 64/866 loss: 1.808417
+step 65/866 loss: 1.700099
+step 66/866 loss: 1.673167
+step 67/866 loss: 1.707328
+step 68/866 loss: 1.693743
+step 69/866 loss: 1.787101
+validation loss at step 70: 1.716093, the acc is: 0.535640
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 60/866 loss: 1.707810
+step 61/866 loss: 1.663698
+step 62/866 loss: 1.691071
+step 63/866 loss: 1.716310
+step 64/866 loss: 1.808422
+step 65/866 loss: 1.700109
+step 66/866 loss: 1.673179
+step 67/866 loss: 1.707322
+step 68/866 loss: 1.693734
+step 69/866 loss: 1.787130
+validation loss at step 70: 1.716125, the acc is: 0.535586
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 60/866 loss: 1.707810
+step 61/866 loss: 1.663697
+step 62/866 loss: 1.691070
+step 63/866 loss: 1.716308
+step 64/866 loss: 1.808420
+step 65/866 loss: 1.700106
+step 66/866 loss: 1.673174
+step 67/866 loss: 1.707318
+step 68/866 loss: 1.693727
+step 69/866 loss: 1.787123
+validation loss at step 70: 1.716125, the acc is: 0.535613
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 60/866 loss: 1.707801
+step 61/866 loss: 1.663691
+step 62/866 loss: 1.691077
+step 63/866 loss: 1.716297
+step 64/866 loss: 1.808414
+step 65/866 loss: 1.700121
+step 66/866 loss: 1.673173
+step 67/866 loss: 1.707338
+step 68/866 loss: 1.693742
+step 69/866 loss: 1.787142
+validation loss at step 70: 1.716090, the acc is: 0.535747
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 60/866 loss: 1.707801
+step 61/866 loss: 1.663691
+step 62/866 loss: 1.691077
+step 63/866 loss: 1.716297
+step 64/866 loss: 1.808414
+step 65/866 loss: 1.700122
+step 66/866 loss: 1.673173
+step 67/866 loss: 1.707337
+step 68/866 loss: 1.693742
+step 69/866 loss: 1.787142
+validation loss at step 70: 1.716090, the acc is: 0.535747
+the validation loss is worse, terminating training
+------- Dev: computing state pseudo-likelihoods ----------
+the utt's maxlength is: 742
+------- decoding dev sets ----------
+------- Test: computing state pseudo-likelihoods ----------
+the utt's maxlength is: 619
+get the likelihoods
+------- decoding testing sets ----------
+tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 72 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 74 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 76 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 78 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 80 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 82 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 84 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 86 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 88 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 90 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 92 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 94 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 96 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 98 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 100 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 102 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 104 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 106 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 108 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 110 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 112 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 114 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 116 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 118 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 120 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 122 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 124 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 126 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 128 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 130 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 132 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 134 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 136 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 138 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 140 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 142 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 144 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 146 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 148 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 150 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 152 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 154 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 156 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 158 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 160 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 162 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 164 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 166 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 168 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 170 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 172 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 174 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 176 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 178 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 180 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 182 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 184 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 186 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 188 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 190 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 192 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 194 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 196 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 198 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 200 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 202 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 204 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 206 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 208 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 210 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 212 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 214 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 216 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 218 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+the input dim is:440
+the output labels is:1925
+------- get alignments ----------
+the utt's maxlength is: 777
+------- training neural net ----------
+validation loss at step 0: 7.562680, acc is 0.037158
+step 0/866 loss: 7.562681
+step 1/866 loss: 7.333022
+step 2/866 loss: 8.292014
+step 3/866 loss: 7.495408
+step 4/866 loss: 7.464066
+step 5/866 loss: 7.355603
+step 6/866 loss: 7.239990
+step 7/866 loss: 7.075919
+step 8/866 loss: 6.894980
+step 9/866 loss: 6.718341
+validation loss at step 10: 10.497546, the acc is: 0.003689
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 0/866 loss: 1.770151
+step 1/866 loss: 1.729138
+step 2/866 loss: 1.725818
+step 3/866 loss: 1.771633
+step 4/866 loss: 1.716328
+step 5/866 loss: 1.696105
+step 6/866 loss: 1.711184
+step 7/866 loss: 1.744618
+step 8/866 loss: 1.699129
+step 9/866 loss: 1.784950
+validation loss at step 10: 1.749979, the acc is: 0.522494
+step 10/866 loss: 1.673280
+step 11/866 loss: 1.762834
+step 12/866 loss: 1.768818
+step 13/866 loss: 1.706610
+step 14/866 loss: 1.721133
+step 15/866 loss: 1.755647
+step 16/866 loss: 1.769168
+step 17/866 loss: 1.741277
+step 18/866 loss: 1.739679
+step 19/866 loss: 1.797871
+validation loss at step 20: 1.749497, the acc is: 0.522335
+step 20/866 loss: 1.794396
+step 21/866 loss: 1.741259
+step 22/866 loss: 1.809764
+step 23/866 loss: 1.741105
+step 24/866 loss: 1.684902
+step 25/866 loss: 1.709221
+step 26/866 loss: 1.745744
+step 27/866 loss: 1.733696
+step 28/866 loss: 1.750892
+step 29/866 loss: 1.726177
+validation loss at step 30: 1.747649, the acc is: 0.523901
+step 30/866 loss: 1.731924
+step 31/866 loss: 1.673741
+step 32/866 loss: 1.768351
+step 33/866 loss: 1.752771
+step 34/866 loss: 1.771125
+step 35/866 loss: 1.767444
+step 36/866 loss: 1.642238
+step 37/866 loss: 1.701983
+step 38/866 loss: 1.721118
+step 39/866 loss: 1.750047
+validation loss at step 40: 1.745935, the acc is: 0.523980
+step 40/866 loss: 1.777512
+step 41/866 loss: 1.764112
+step 42/866 loss: 1.806971
+step 43/866 loss: 1.709767
+step 44/866 loss: 1.727172
+step 45/866 loss: 1.724333
+step 46/866 loss: 1.703883
+step 47/866 loss: 1.755120
+step 48/866 loss: 1.740270
+step 49/866 loss: 1.751712
+validation loss at step 50: 1.744494, the acc is: 0.523821
+step 50/866 loss: 1.775801
+step 51/866 loss: 1.758448
+step 52/866 loss: 1.746118
+step 53/866 loss: 1.780989
+step 54/866 loss: 1.837194
+step 55/866 loss: 1.778787
+step 56/866 loss: 1.719530
+step 57/866 loss: 1.776125
+step 58/866 loss: 1.671643
+step 59/866 loss: 1.807876
+validation loss at step 60: 1.745942, the acc is: 0.523980
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 50/866 loss: 1.776098
+step 51/866 loss: 1.756821
+step 52/866 loss: 1.741191
+step 53/866 loss: 1.778051
+step 54/866 loss: 1.833421
+step 55/866 loss: 1.776713
+step 56/866 loss: 1.716784
+step 57/866 loss: 1.772792
+step 58/866 loss: 1.666998
+step 59/866 loss: 1.803458
+validation loss at step 60: 1.742310, the acc is: 0.525520
+step 60/866 loss: 1.670349
+step 61/866 loss: 1.701651
+step 62/866 loss: 1.693920
+step 63/866 loss: 1.736285
+step 64/866 loss: 1.666548
+step 65/866 loss: 1.763494
+step 66/866 loss: 1.691018
+step 67/866 loss: 1.779153
+step 68/866 loss: 1.717140
+step 69/866 loss: 1.687990
+validation loss at step 70: 1.741863, the acc is: 0.525148
+step 70/866 loss: 1.717683
+step 71/866 loss: 1.763211
+step 72/866 loss: 1.749459
+step 73/866 loss: 1.714500
+step 74/866 loss: 1.775550
+step 75/866 loss: 1.730808
+step 76/866 loss: 1.789522
+step 77/866 loss: 1.719344
+step 78/866 loss: 1.787067
+step 79/866 loss: 1.720956
+validation loss at step 80: 1.741393, the acc is: 0.525466
+step 80/866 loss: 1.652168
+step 81/866 loss: 1.725820
+step 82/866 loss: 1.722942
+step 83/866 loss: 1.736166
+step 84/866 loss: 1.717210
+step 85/866 loss: 1.725325
+step 86/866 loss: 1.684326
+step 87/866 loss: 1.667646
+step 88/866 loss: 1.746263
+step 89/866 loss: 1.756061
+validation loss at step 90: 1.741275, the acc is: 0.525546
+step 90/866 loss: 1.750788
+step 91/866 loss: 1.741661
+step 92/866 loss: 1.630801
+step 93/866 loss: 1.674577
+step 94/866 loss: 1.734180
+step 95/866 loss: 1.715596
+step 96/866 loss: 1.823032
+step 97/866 loss: 1.752227
+step 98/866 loss: 1.734529
+step 99/866 loss: 1.707155
+validation loss at step 100: 1.741540, the acc is: 0.524909
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 90/866 loss: 1.749912
+step 91/866 loss: 1.740340
+step 92/866 loss: 1.629400
+step 93/866 loss: 1.674051
+step 94/866 loss: 1.732441
+step 95/866 loss: 1.713530
+step 96/866 loss: 1.820757
+step 97/866 loss: 1.750972
+step 98/866 loss: 1.731785
+step 99/866 loss: 1.704194
+validation loss at step 100: 1.741143, the acc is: 0.525546
+step 100/866 loss: 1.722225
+step 101/866 loss: 1.706665
+step 102/866 loss: 1.697599
+step 103/866 loss: 1.758787
+step 104/866 loss: 1.735608
+step 105/866 loss: 1.725079
+step 106/866 loss: 1.799969
+step 107/866 loss: 1.709804
+step 108/866 loss: 1.720128
+step 109/866 loss: 1.815283
+validation loss at step 110: 1.741155, the acc is: 0.525679
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 100/866 loss: 1.722225
+step 101/866 loss: 1.706632
+step 102/866 loss: 1.697466
+step 103/866 loss: 1.758624
+step 104/866 loss: 1.735438
+step 105/866 loss: 1.724859
+step 106/866 loss: 1.799657
+step 107/866 loss: 1.709292
+step 108/866 loss: 1.719632
+step 109/866 loss: 1.814657
+validation loss at step 110: 1.741117, the acc is: 0.525466
+step 110/866 loss: 1.764311
+step 111/866 loss: 1.800537
+step 112/866 loss: 1.713457
+step 113/866 loss: 1.727483
+step 114/866 loss: 1.711257
+step 115/866 loss: 1.724180
+step 116/866 loss: 1.742840
+step 117/866 loss: 1.647355
+step 118/866 loss: 1.695768
+step 119/866 loss: 1.714699
+validation loss at step 120: 1.741093, the acc is: 0.525758
+step 120/866 loss: 1.694101
+step 121/866 loss: 1.758269
+step 122/866 loss: 1.674868
+step 123/866 loss: 1.773531
+step 124/866 loss: 1.686421
+step 125/866 loss: 1.707073
+step 126/866 loss: 1.730033
+step 127/866 loss: 1.737937
+step 128/866 loss: 1.740790
+step 129/866 loss: 1.731865
+validation loss at step 130: 1.740977, the acc is: 0.525573
+step 130/866 loss: 1.769147
+step 131/866 loss: 1.726227
+step 132/866 loss: 1.754333
+step 133/866 loss: 1.773008
+step 134/866 loss: 1.751692
+step 135/866 loss: 1.725338
+step 136/866 loss: 1.660533
+step 137/866 loss: 1.737957
+step 138/866 loss: 1.714730
+step 139/866 loss: 1.744870
+validation loss at step 140: 1.740988, the acc is: 0.525520
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 130/866 loss: 1.769059
+step 131/866 loss: 1.726021
+step 132/866 loss: 1.754176
+step 133/866 loss: 1.772969
+step 134/866 loss: 1.751491
+step 135/866 loss: 1.725027
+step 136/866 loss: 1.660252
+step 137/866 loss: 1.737615
+step 138/866 loss: 1.714389
+step 139/866 loss: 1.744496
+validation loss at step 140: 1.740961, the acc is: 0.525573
+step 140/866 loss: 1.700394
+step 141/866 loss: 1.729209
+step 142/866 loss: 1.681657
+step 143/866 loss: 1.691008
+step 144/866 loss: 1.748832
+step 145/866 loss: 1.734753
+step 146/866 loss: 1.748850
+step 147/866 loss: 1.694777
+step 148/866 loss: 1.662224
+step 149/866 loss: 1.687756
+validation loss at step 150: 1.741120, the acc is: 0.525599
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 140/866 loss: 1.700394
+step 141/866 loss: 1.729204
+step 142/866 loss: 1.681649
+step 143/866 loss: 1.690989
+step 144/866 loss: 1.748806
+step 145/866 loss: 1.734720
+step 146/866 loss: 1.748802
+step 147/866 loss: 1.694730
+step 148/866 loss: 1.662164
+step 149/866 loss: 1.687691
+validation loss at step 150: 1.741123, the acc is: 0.525679
+the validation loss is worse, returning to the previously validated model with halved learning rate
+step 140/866 loss: 1.700394
+step 141/866 loss: 1.729203
+step 142/866 loss: 1.681646
+step 143/866 loss: 1.690984
+step 144/866 loss: 1.748799
+step 145/866 loss: 1.734711
+step 146/866 loss: 1.748790
+step 147/866 loss: 1.694717
+step 148/866 loss: 1.662147
+step 149/866 loss: 1.687672
+validation loss at step 150: 1.741123, the acc is: 0.525652E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 220 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 222 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 224 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax
+E tensorflow/core/util/events_writer.cc:162] The events file exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax has disappeared.
+E tensorflow/core/util/events_writer.cc:131] Failed to flush 226 events to exp/cnn/logdir/events.out.tfevents.1493795794.nghci-Amax

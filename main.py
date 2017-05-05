@@ -20,8 +20,8 @@ import ark, prepare_data, feature_reader, batchdispenser, target_coder
 import nnet
 
 #here you can set which steps should be executed. If a step has been executed in the past the result have been saved and the step does not have to be executed again (if nothing has changed)
-TRAIN_NNET = True   #required
-TEST_NNET = True    #required if the performance of the DNN is tested
+TRAIN_NNET = True
+TEST_NNET = True
 DEV_NNET = True
 
 #read config file
@@ -45,6 +45,8 @@ dev_features_dir = config.get('directories','dev_features')
 expdir = config.get('directories','expdir')
 # exp dir to store data
 store_expdir = config.get('directories','store_expdir')
+# the ali dir
+alidir = config.get('directories','alidir')
 
 if not os.path.isdir(store_expdir):
     os.mkdir(store_expdir)
@@ -71,7 +73,7 @@ if TRAIN_NNET:
     prepare_data.shuffle_examples(train_features_dir)
       
     print('------- get alignments ----------')
-    alifiles = [ expdir + '/' + gmm_name + '_ali/ali.' + str(i+1) + '.gz' for i in range(num_ali_jobs)]
+    alifiles = [ expdir + '/' + alidir + '/ali.' + str(i+1) + '.gz' for i in range(num_ali_jobs)]
     alifilebinary = store_expdir + '/' + nnet_name + '/ali.binary.gz'
     alifile = store_expdir + '/' + nnet_name + '/ali.text.gz'
     if not os.path.isfile(alifile):
@@ -80,7 +82,7 @@ if TRAIN_NNET:
         tmp = open(alifilebinary, 'a')
         tmp.close()
     os.system('cat %s > %s' % (' '.join(alifiles), alifilebinary))
-    os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s_ali/final.alimdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + gmm_name,alifile))
+    os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s/final.alimdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + alidir,alifile))
     
     # get maxlength
     max_input_length = 0
@@ -232,5 +234,5 @@ if TEST_NNET:
             decodedir, decodedir, decodedir, decodedir))
 
 #get results
-# the wer in test is 21.9
-os.system('grep Sum %s/kaldi_decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh' % decodedir)
+os.system('grep Sum tf-exp/cnn/decode_dev/*decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh')
+os.system('grep Sum tf-exp/cnn/decode_test/*decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh')

@@ -61,47 +61,13 @@ class DNN(Classifier):
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse):
             #input layer
             layer = FFLayer(self.num_units, self.activation)
-
             #output layer
             outlayer = FFLayer(self.output_dim,
                                TfActivation(None, lambda x: x), 0)
 
-            #do the forward computation
-
             #convert the sequential data to non sequential data
             nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
-
-            #test
-            # convLayer = ConvLayer(self.num_units, self.activation)
-            # cnn_inputs = tf.reshape(nonseq_inputs, shape=[-1, 36, 27, 1])
-            # layer_0 = convLayer(cnn_inputs, [7, 1, 1, 128], True, True, is_training, reuse, 'layer_0')
-            # print(layer_0.shape)
-            # layer_1 = convLayer(layer_0, [4, 1, 128, 256], False, True, is_training, reuse, 'layer_1')
-            # print(layer_1.shape)
-            # layer_1 = tf.reshape(layer_1, [-1, 9*1*256])
-            # print(layer_1.shape)
-            # layer_2 = layer(layer_1, is_training, reuse, 'layer_2')
-            # print(layer_2.shape)
-            # logits = outlayer(layer_2, is_training, reuse, 'layer_3')
-            # print(logits.shape)
-
-            # control_ops = None
-            # #convert the logits to sequence logits to match expected output
-            # seq_logits = seq_convertors.nonseq2seq(logits, seq_length,
-            #                                        len(inputs))
-
-            # #create a saver
-            # saver = tf.train.Saver()
-            ## test
-
-            # test2
-            #do the forward computation
-
-            #convert the sequential data to non sequential data
-            nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
-
             activations = [None]*self.num_layers
-            #activations[0] = layer(nonseq_inputs, is_training, reuse, 'layer0')
             
             #cnn_layer = RestNet()
             #cnn_layer = CnnVd6()
@@ -162,60 +128,7 @@ class DNN(Classifier):
             saver = tf.train.Saver()
 
         return seq_logits, seq_length, saver, control_ops
-            ## test2
 
-        #     activations = [None]*self.num_layers
-        #     activations[0] = layer(nonseq_inputs, is_training, reuse, 'layer0')
-        #     for l in range(1, self.num_layers):
-        #         activations[l] = layer(activations[l-1], is_training, reuse,
-        #                                'layer' + str(l))
-
-        #     if self.layerwise_init:
-
-        #         #variable that determines how many layers are initialised
-        #         #in the neural net
-        #         initialisedlayers = tf.get_variable(
-        #             'initialisedlayers', [],
-        #             initializer=tf.constant_initializer(0),
-        #             trainable=False,
-        #             dtype=tf.int32)
-
-        #         #operation to increment the number of layers
-        #         add_layer_op = initialisedlayers.assign(initialisedlayers+1).op
-
-        #         #compute the logits by selecting the activations at the layer
-        #         #that has last been added to the network, this is used for layer
-        #         #by layer initialisation
-        #         logits = tf.case(
-        #             [(tf.equal(initialisedlayers, tf.constant(l)),
-        #               Callable(activations[l]))
-        #              for l in range(len(activations))],
-        #             default=Callable(activations[-1]),
-        #             exclusive=True, name='layerSelector')
-
-        #         logits.set_shape([None, self.num_units])
-        #     else:
-        #         logits = activations[-1]
-
-        #     logits = outlayer(logits, is_training, reuse,
-        #                       'layer' + str(self.num_layers))
-
-
-        #     if self.layerwise_init:
-        #         #operation to initialise the final layer
-        #         init_last_layer_op = tf.initialize_variables(
-        #             tf.get_collection(
-        #                 tf.GraphKeys.VARIABLES,
-        #                 scope=(tf.get_variable_scope().name + '/layer'
-        #                        + str(self.num_layers))))
-
-        #         control_ops = {'add':add_layer_op, 'init':init_last_layer_op}
-        #     else:
-        #         control_ops = None
-
-           
-
-        # return seq_logits, seq_length, saver, control_ops
 
 class CNN(Classifier):
     '''This class is a graph for feedforward fully connected neural nets.'''

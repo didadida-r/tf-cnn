@@ -343,10 +343,12 @@ class Trainer(object):
         #apply the accumulated gradients to update the model parameters and
         #evaluate the loss
         if self.summarywriter is not None:
+            # 运行日志summary
             [loss, summary, _] = tf.get_default_session().run(
                 [self.average_loss, self.summary, self.apply_gradients_op])
 
             #pylint: disable=E1101
+            # 将生成的日志写入文件中
             self.summarywriter.add_summary(summary,
                                            global_step=self.global_step.eval())
 
