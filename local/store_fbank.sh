@@ -3,7 +3,7 @@
 # Begin configuration section.  
 nj=4
 cmd=run.pl
-delta_order=
+apply_deltas=false
 cmvn_opts=
 # End configuration section.
 
@@ -30,8 +30,13 @@ for f in $sdata/1/feats.scp $sdata/1/cmvn.scp; do
   [ ! -f $f ] && echo "$0: Missing $f" && exit 1;
 done
 
-feats="ark,s,cs:apply-cmvn $cmvn_opts --utt2spk=ark:$sdata/JOB/utt2spk scp:$sdata/JOB/cmvn.scp scp:$sdata/JOB/feats.scp ark:- | add-deltas --delta-order=$delta_order ark:- ark:- |"
-
+if $apply_deltas; then
+    echo "apply delta tran"
+    feats="ark,s,cs:apply-cmvn $cmvn_opts --utt2spk=ark:$sdata/JOB/utt2spk scp:$sdata/JOB/cmvn.scp scp:$sdata/JOB/feats.scp ark:- | add-deltas --delta-order=2 ark:- ark:- |"
+else
+    echo "without delta tran"
+    feats="ark,s,cs:apply-cmvn $cmvn_opts --utt2spk=ark:$sdata/JOB/utt2spk scp:$sdata/JOB/cmvn.scp scp:$sdata/JOB/feats.scp ark:- |"
+fi
 # Prepare the output dir,
 # 清除data目录下残留的feats和cmvn文件
 utils/copy_data_dir.sh $srcdata $data; rm $data/{feats,cmvn}.scp 2>/dev/null

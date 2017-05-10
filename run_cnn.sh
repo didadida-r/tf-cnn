@@ -9,17 +9,20 @@ feats_nj=20
 stage=-2
 
 Fbank_Feature=false
-MFCC_Feature=true
+MFCC_Feature=false
 fMLLR_Feature=true
 
 
 # 这里需要将前面生成的data文件夹复制到data-fbank中，否则下面的程序会修改原来data中的数据格式为fbank
 # 选择不压缩
+trandir=data-tf-tran       # 变换过的特征
 desdir=data-tf       # 原始数据文件以及最终的scp
 tmpdir=data-tmp       # 中间生成文件以及生成的特征ark文件所在目录
 
 # 生成fbank特征
 if $Fbank_Feature; then
+    # 是否添加deltas特征
+    apply_deltas=true
     echo ============================================================================
     echo "            Make FBank & Compute CMVN                    "
     echo ============================================================================
@@ -39,7 +42,7 @@ if $Fbank_Feature; then
     echo ============================================================================
     for x in train dev test; do
         dir=$tmpdir/$x
-        local/store_fbank.sh --nj $feats_nj --delta_order 2 --cmd "$train_cmd" \
+        local/store_fbank.sh --nj $feats_nj --apply_deltas $apply_deltas --cmd "$train_cmd" \
           $dir $desdir/$x $dir/log $dir/data || exit 1
     done
 fi
@@ -70,7 +73,7 @@ if $MFCC_Feature; then
     done
 fi
 
-# 对于mfcc特征进行fmllr变换
+# 对特征进行fmllr变换
 if $fMLLR_Feature; then
   # Config:
   gmmdir=exp/tri3
@@ -79,13 +82,13 @@ if $fMLLR_Feature; then
   echo "                                  Store fMLLR features                    "
   echo ============================================================================
   for x in test dev; do
-      dir=$desdir/$x
+      dir=$trandir/$x
       steps/nnet/make_fmllr_feats.sh --nj $feats_nj --cmd "$train_cmd" \
          --transform-dir $gmmdir/decode_$x \
          $dir data/$x $gmmdir $dir/log $dir/data || exit 1
   done
   # train
-  dir=$desdir/train
+  dir=$trandir/train
   steps/nnet/make_fmllr_feats.sh --nj $feats_nj --cmd "$train_cmd" \
      --transform-dir ${gmmdir}_ali \
      $dir data/train $gmmdir $dir/log $dir/data || exit 1

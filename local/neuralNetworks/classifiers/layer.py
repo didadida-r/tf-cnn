@@ -41,7 +41,7 @@ class FFLayer(object):
 
                 weights = tf.get_variable(
                     'weights', [inputs.get_shape()[1], self.output_dim],
-                    initializer=tf.random_normal_initializer(stddev=stddev))
+                    initializer=tf.contrib.layers.xavier_initializer())
 
                 biases = tf.get_variable(
                     'biases', [self.output_dim],
@@ -121,20 +121,36 @@ class CnnLayer(object):
         pass
 
     def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
-        with tf.variable_scope(scope or type(self).__name__, reuse=reuse):          
-            inputs_img = tf.reshape(inputs, tf.stack( [ tf.shape(inputs)[0] , 40, 1, 11] )  ) 
-            inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )  # N*36*9*3
+        with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
+            shape = [tf.shape(inputs)[0] , 40, 3, 11]
+            inputs_img = tf.reshape(inputs, tf.stack(shape)  ) 
+            inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )
+            print(shape)
 
-            conv1 = self.convolution(inputs_img, 'conv_l1', [9, 9, 1, 256], reuse, is_training)
+            # 不使用BN层
+            # 这里这使用了静态的MFCC特征
+            is_BN=False
+            conv1 = self.convolution(inputs_img[:,:,:,0:1], 'conv_l1', [9, 9, 1, 128], [1, 1, 1, 1], reuse, is_training, is_BN)
             pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
-            conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], reuse, is_training)
+            conv2 = self.convolution(pool1, 'conv_2', [4, 3, 128, 256], [1, 1, 1, 1], reuse, is_training, is_BN)
             shape = conv2.get_shape().as_list()
             outputs = tf.reshape(conv2, tf.stack( [tf.shape(conv2)[0],  shape[1] * shape[2] * shape[3] ] ) )
             
-            print(inputs_img.shape)
-            print(conv1.shape)
-            print(conv2.shape)
-            print(outputs.shape)
+            print("inputs_img.shape" + str(inputs_img.shape))
+            print("conv1.shape" + str(conv1.shape))
+            print("conv2.shape" + str(conv2.shape))
+            print("outputs.shape" + str(outputs.shape))
+            
+            # conv1 = self.convolution(inputs_img, 'conv_l1', [7, 17, shape[2], 256], reuse, is_training)
+            # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
+            # conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], reuse, is_training)
+            # shape = conv2.get_shape().as_list()
+            # outputs = tf.reshape(conv2, tf.stack( [tf.shape(conv2)[0],  shape[1] * shape[2] * shape[3] ] ) )
+            
+            # print(inputs_img.shape)
+            # print(conv1.shape)
+            # print(conv2.shape)
+            # print(outputs.shape)
             
             if is_training == False:
                 # 从第50帧开始记录
@@ -157,18 +173,19 @@ class CnnLayer(object):
         Returns:
             The output of the layer
         '''
-    def convolution(self, inputs_img, name, kernel_shape, reuse, is_training):
+    def convolution(self, inputs_img, name, kernel_shape, strides, reuse, is_training, is_BN):
         with tf.variable_scope('parameters_'+name, reuse=reuse):
             n = kernel_shape[0]* kernel_shape[1]* kernel_shape[3]
-            weights = tf.get_variable('weights_'+name, kernel_shape,  initializer = tf.random_normal_initializer(stddev=np.sqrt(2.0 / n)))
+            weights = tf.get_variable('weights_'+name, kernel_shape,  initializer = tf.contrib.layers.xavier_initializer_conv2d())
             biases = tf.get_variable('biases_'+name,   [kernel_shape[3]],   initializer=tf.constant_initializer(0) )
 
         with tf.variable_scope('conv_'+name, reuse=reuse):
-            conv = tf.nn.conv2d(inputs_img,  weights, [1, 1, 1, 1], padding='VALID')
-            conv = tf.contrib.layers.batch_norm(conv,
-                is_training=is_training,
-                scope='batch_norm',
-                reuse = reuse)
+            conv = tf.nn.conv2d(inputs_img,  weights, strides, padding='VALID')
+            if is_BN:
+                conv = tf.contrib.layers.batch_norm(conv,
+                    is_training=is_training,
+                    scope='batch_norm',
+                    reuse = reuse)
             hidden = tf.nn.relu(conv + biases)
 
         return hidden  

@@ -143,7 +143,8 @@ class Nnet(object):
             #do a validation step
             if val_data is not None:
                 validation_loss, validation_acc = trainer.evaluate(val_data, val_labels)
-                print('validation loss at step %d: %f, acc is %f' % (step, validation_loss, validation_acc))
+                print('validation loss at step %d: %f, acc is %f' 
+                        % (step, validation_loss, validation_acc))
                 validation_step = step
                 trainer.save_trainer(self.conf['savedir']
                                      + '/training/validated')
@@ -174,7 +175,7 @@ class Nnet(object):
                     if self.conf['valid_adapt'] == 'True':
                         #if the loss increased, half the learning rate and go
                         #back to the previous validation step
-                        if current_loss > validation_loss:
+                        if current_acc + 0.01 < validation_acc:
 
                             #go back in the dispenser
                             for _ in range(step-validation_step):
@@ -200,6 +201,7 @@ class Nnet(object):
                             continue
 
                         else:
+                            validation_acc = current_acc
                             validation_loss = current_loss
                             validation_step = step
                             num_retries = 0

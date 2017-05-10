@@ -82,7 +82,9 @@ if TRAIN_NNET:
         tmp = open(alifilebinary, 'a')
         tmp.close()
     os.system('cat %s > %s' % (' '.join(alifiles), alifilebinary))
-    os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s/final.alimdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + alidir,alifile))
+    ## debug
+    os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s/final.mdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + alidir,alifile))
+    #os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s/final.alimdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + alidir,alifile))
     
     # get maxlength
     max_input_length = 0

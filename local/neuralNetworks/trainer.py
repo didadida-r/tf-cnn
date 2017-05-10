@@ -109,12 +109,15 @@ class Trainer(object):
 
                 #compute the learning rate with exponential decay and scale with
                 #the learning rate factor
-                learning_rate = tf.train.exponential_decay(
-                    init_learning_rate, self.global_step, nsteps,
-                    learning_rate_decay) * learning_rate_fact
+                # 这里不使用指数下降
+                self.learning_rate = init_learning_rate*learning_rate_fact
+                    
+                # self.learning_rate = tf.train.exponential_decay(
+                    # init_learning_rate, self.global_step, nsteps,
+                    # learning_rate_decay) * learning_rate_fact
 
                 #create the optimizer
-                optimizer = tf.train.AdamOptimizer(learning_rate)
+                optimizer = tf.train.AdamOptimizer(self.learning_rate)
 
             #for every parameter create a variable that holds its gradients
             with tf.variable_scope('gradients'):
@@ -215,7 +218,7 @@ class Trainer(object):
                  for val in params+meangrads]
                 + [tf.summary.scalar('loss', self.average_loss)]
                 + [tf.summary.scalar('accuracy', self.average_acc) ]
-                + [tf.summary.scalar('lr', learning_rate)])
+                + [tf.summary.scalar('lr', self.learning_rate)])
 
 
         #specify that the graph can no longer be modified after this point
@@ -457,6 +460,10 @@ class Trainer(object):
         '''halve the learning rate'''
 
         self.halve_learningrate_op.run()
+        
+    def get_learning_rate(self):
+    
+        return self.learning_rate.op.run()
 
     def save_model(self, filename):
         '''
