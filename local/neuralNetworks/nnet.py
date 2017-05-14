@@ -70,6 +70,8 @@ class Nnet(object):
         if float(self.conf['dropout']) < 1:
             activation = classifiers.activation.Dropout(
                 activation, float(self.conf['dropout']))
+                
+        self.ACC_THRESHOLD = float(self.conf['acc_threshold'])
 
         #create a DNN
         self.dnn = DNN(
@@ -175,7 +177,12 @@ class Nnet(object):
                     if self.conf['valid_adapt'] == 'True':
                         #if the loss increased, half the learning rate and go
                         #back to the previous validation step
-                        if current_acc + 0.01 < validation_acc:
+                        
+                        # 在迭代后期，让学习率趋于变小
+                        if step == 750:
+                            self.ACC_THRESHOLD = self.ACC_THRESHOLD/10.0
+                            print('set ACC_THRESHOLD to: 0')
+                        if current_acc + self.ACC_THRESHOLD < validation_acc:
 
                             #go back in the dispenser
                             for _ in range(step-validation_step):

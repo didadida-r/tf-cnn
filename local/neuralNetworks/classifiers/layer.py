@@ -122,23 +122,22 @@ class CnnLayer(object):
 
     def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
-            shape = [tf.shape(inputs)[0] , 40, 3, 11]
+            shape = [tf.shape(inputs)[0] , 40, 45, 1]
             inputs_img = tf.reshape(inputs, tf.stack(shape)  ) 
             inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )
             print(shape)
 
-            # 不使用BN层
-            # 这里这使用了静态的MFCC特征
+            # 论文测试
             is_BN=False
-            conv1 = self.convolution(inputs_img[:,:,:,0:1], 'conv_l1', [9, 9, 1, 128], [1, 1, 1, 1], reuse, is_training, is_BN)
-            pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
-            conv2 = self.convolution(pool1, 'conv_2', [4, 3, 128, 256], [1, 1, 1, 1], reuse, is_training, is_BN)
-            shape = conv2.get_shape().as_list()
-            outputs = tf.reshape(conv2, tf.stack( [tf.shape(conv2)[0],  shape[1] * shape[2] * shape[3] ] ) )
+            conv1 = self.convolution(inputs_img, 'conv_l1', [8, 1, shape[2], 150], [1, 2, 1, 1], reuse, is_training, is_BN)
+            pool1 = tf.nn.max_pool(conv1, ksize=[1, 6, 1, 1], strides=[1, 6, 1, 1], padding='VALID')
+            #conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], [1, 1, 1, 1], reuse, is_training, is_BN)
+            shape = pool1.get_shape().as_list()
+            outputs = tf.reshape(pool1, tf.stack( [tf.shape(pool1)[0],  shape[1] * shape[2] * shape[3] ] ) )
             
             print("inputs_img.shape" + str(inputs_img.shape))
             print("conv1.shape" + str(conv1.shape))
-            print("conv2.shape" + str(conv2.shape))
+            #print("conv2.shape" + str(conv2.shape))
             print("outputs.shape" + str(outputs.shape))
             
             # conv1 = self.convolution(inputs_img, 'conv_l1', [7, 17, shape[2], 256], reuse, is_training)
@@ -154,7 +153,7 @@ class CnnLayer(object):
             
             if is_training == False:
                 # 从第50帧开始记录
-                tf.summary.image('input_img', inputs_img[50:,:,:,:], 10)
+                tf.summary.image('input_img', inputs_img[50:,:,:,0:1], 10)
                 #shape = conv1.shape
                 #x1 = tf.reshape(conv1, tf.stack([tf.shape(conv1)[0], shape[1]*16, shape[2]*16, 1]) )
                 #tf.summary.image('conv1', x1, 10)
