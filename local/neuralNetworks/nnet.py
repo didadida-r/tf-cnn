@@ -27,7 +27,6 @@ class Nnet(object):
 
         #get nnet structure configs
         self.conf = dict(conf.items('nnet'))
-        self.lstm_conf = dict(conf.items('lstm'))
 
         #define location to save neural nets
         self.conf['savedir'] = (conf.get('directories', 'expdir')
@@ -82,7 +81,7 @@ class Nnet(object):
         #create a DNN
         self.dnn = DNN(
             num_labels, int(self.conf['num_hidden_layers']),
-            int(self.conf['num_hidden_units']), self.lstm_conf, activation,
+            int(self.conf['num_hidden_units']), conf, activation,
             int(self.conf['add_layer_period']) > 0)
 
     def train(self, dispenser):

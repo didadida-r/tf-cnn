@@ -18,7 +18,7 @@ desdir=data-tf       # 原始数据文件以及最终的scp
 tmpdir=data-tmp       # 中间生成文件以及生成的特征ark文件所在目录
 
 # 是否添加deltas特征
-apply_deltas=false
+apply_deltas=true
     
 # 生成fbank特征
 if $Fbank_Feature; then

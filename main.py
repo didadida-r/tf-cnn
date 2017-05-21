@@ -20,7 +20,7 @@ import ark, prepare_data, feature_reader, batchdispenser, target_coder
 import nnet
 
 #here you can set which steps should be executed. If a step has been executed in the past the result have been saved and the step does not have to be executed again (if nothing has changed)
-TRAIN_NNET = False
+TRAIN_NNET = True
 TEST_NNET = True
 DEV_NNET = True
 
@@ -121,13 +121,13 @@ if TRAIN_NNET:
     print('------- training neural net ----------')
     
     # use tf-kaldi to process the nnet
-    start = time.clock()
+    start = clock()
     nnet.train(dispenser)
-    end = time.clock()
+    end = clock()
     print('the nnet training time is : ' + str((end-start)/60) + '/min')
     
 if DEV_NNET:
-    start = time.clock()
+    start = clock()
     #use the neural net to calculate posteriors for the testing set
     print('------- Dev: computing state pseudo-likelihoods ----------')
     savedir = store_expdir + '/' + config.get('nnet', 'name')
@@ -184,11 +184,11 @@ if DEV_NNET:
         (current_dir, config.get('directories', 'decode_num_jobs'), 
             decodedir, decodedir, decodedir, decodedir))
     
-    end = time.clock()
+    end = clock()
     print('the nnet decode time in dev is : ' + str((end-start)/60) + '/min')
     
 if TEST_NNET:
-    start = time.clock()
+    start = clock()
     #use the neural net to calculate posteriors for the testing set
     print('------- Test: computing state pseudo-likelihoods ----------')
     savedir = store_expdir + '/' + config.get('nnet', 'name')
@@ -246,7 +246,7 @@ if TEST_NNET:
         (current_dir, config.get('directories', 'decode_num_jobs'), 
             decodedir, decodedir, decodedir, decodedir))
             
-    end = time.clock()
+    end = clock()
     print('the nnet decode time in test is : ' + str((end-start)/60) + '/min')
 
 #get results
