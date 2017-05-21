@@ -46,7 +46,7 @@ class Decoder(object):
             # merge all summary during the decoding 
             self.merged = tf.summary.merge_all()
             self.summarywriter = tf.summary.FileWriter(logdir="tf-exp/decode_vis", graph=self.graph)
-            self.decode_visualisation = True
+            self.decode_visualisation = False
             
         #specify that the graph can no longer be modified after this point
         self.graph.finalize()

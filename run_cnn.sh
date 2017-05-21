@@ -8,10 +8,9 @@ gpu_ids=4
 feats_nj=20
 stage=-2
 
-Fbank_Feature=true
-MFCC_Feature=false
+Fbank_Feature=false
+MFCC_Feature=true
 fMLLR_Feature=false
-
 
 # 这里需要将前面生成的data文件夹复制到data-fbank中，否则下面的程序会修改原来data中的数据格式为fbank
 # 选择不压缩
@@ -19,7 +18,7 @@ desdir=data-tf       # 原始数据文件以及最终的scp
 tmpdir=data-tmp       # 中间生成文件以及生成的特征ark文件所在目录
 
 # 是否添加deltas特征
-apply_deltas=true
+apply_deltas=false
     
 # 生成fbank特征
 if $Fbank_Feature; then
@@ -29,7 +28,7 @@ if $Fbank_Feature; then
     echo ============================================================================
 
     # 删除原来的数据，并将data目录复制到desdir
-    rm -rf $desdir $tmpdir
+    #rm -rf $desdir $tmpdir
     cp -r data $desdir || exit 1;
 
     for x in train dev test; do

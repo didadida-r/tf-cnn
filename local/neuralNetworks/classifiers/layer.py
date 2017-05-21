@@ -57,64 +57,6 @@ class FFLayer(object):
 
         return outputs
 
-class ConvLayer(object):
-    '''This class defines a fully connected feed forward layer'''
-
-    def __init__(self, output_dim, activation):
-        '''
-        FFLayer constructor, defines the variables
-        Args:
-            output_dim: output dimension of the layer
-            activation: the activation function
-            weights_std: the standart deviation of the weights by default the
-                inverse square root of the input dimension is taken
-        '''
-
-        #save the parameters
-        self.output_dim = output_dim
-        self.activation = activation
-        self.strides = 1
-
-    def __call__(self, inputs, kernel_shape, is_first_layer=False, is_pool=True, is_training=False, reuse=False, scope=None):
-        '''
-        Do the forward computation
-        Args:
-            inputs: the input to the conv layer, format shape like [num, x, y, channel]
-            is_training: whether or not the network is in training mode
-            reuse: wheter or not the variables in the network should be reused
-            scope: the variable scope of the layer
-        Returns:
-            The output of the layer
-        '''
-        with tf.variable_scope(scope or type(self).__name__, reuse=reuse):
-            with tf.variable_scope('parameters', reuse=reuse):
-
-                weights = tf.get_variable(
-                    'weights', shape=kernel_shape, dtype=tf.float32,
-                    initializer=tf.contrib.layers.xavier_initializer_conv2d())
-
-                biases = tf.get_variable(
-                    'biases', [kernel_shape[3]],
-                    initializer=tf.constant_initializer(0))
-
-            #apply weights and biases
-            with tf.variable_scope('linear', reuse=reuse):
-                linear = tf.nn.conv2d(inputs, weights, strides=[1, self.strides, self.strides, 1], padding='SAME')
-                linear = tf.nn.bias_add(linear, biases)
-
-            #apply activation function
-            with tf.variable_scope('activation', reuse=reuse):
-                if is_first_layer:
-                    linear = tf.reduce_sum(linear, 2, keep_dims=True)     # 将卷积结果按照tensor的第二个维度求和
-                outputs = self.activation(linear, is_training, reuse)
-
-            # pool steps
-            if is_pool:
-                outputs = tf.nn.max_pool(outputs, ksize=[1, 2, 1, 1], strides=[1, 2, 1, 1],
-                                padding='SAME')
-
-        return outputs
-
 class CnnLayer(object):
 
     def __init__(self):
@@ -122,25 +64,30 @@ class CnnLayer(object):
 
     def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
+            
+            # the fitst conv way 
             shape = [tf.shape(inputs)[0] , 40, 45, 1]
             inputs_img = tf.reshape(inputs, tf.stack(shape)  ) 
             inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )
             print(shape)
-
-            # 论文测试
+            
             is_BN=False
             conv1 = self.convolution(inputs_img, 'conv_l1', [8, 1, shape[2], 150], [1, 2, 1, 1], reuse, is_training, is_BN)
             pool1 = tf.nn.max_pool(conv1, ksize=[1, 6, 1, 1], strides=[1, 6, 1, 1], padding='VALID')
-            #conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], [1, 1, 1, 1], reuse, is_training, is_BN)
             shape = pool1.get_shape().as_list()
             outputs = tf.reshape(pool1, tf.stack( [tf.shape(pool1)[0],  shape[1] * shape[2] * shape[3] ] ) )
             
             print("inputs_img.shape" + str(inputs_img.shape))
             print("conv1.shape" + str(conv1.shape))
-            #print("conv2.shape" + str(conv2.shape))
             print("outputs.shape" + str(outputs.shape))
             
-            # conv1 = self.convolution(inputs_img, 'conv_l1', [7, 17, shape[2], 256], reuse, is_training)
+            ## the second conv way
+#            shape = [tf.shape(inputs)[0] , 40, 15, 3]
+#            inputs_img = tf.reshape(inputs, tf.stack(shape)  ) 
+#            inputs_img = tf.transpose(inputs_img, [ 0 , 1, 3, 2 ] )
+#            print(shape)
+            
+            # conv1 = self.convolution(inputs_img, 'conv_l1', [9, 9, shape[2], 256], reuse, is_training)
             # pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 1, 1], strides=[1, 3, 1, 1], padding='VALID')
             # conv2 = self.convolution(pool1, 'conv_2', [4, 3, 256, 256], reuse, is_training)
             # shape = conv2.get_shape().as_list()
@@ -188,3 +135,56 @@ class CnnLayer(object):
             hidden = tf.nn.relu(conv + biases)
 
         return hidden  
+
+class LSTMLayer(object):
+
+    def __init__(self, conf):
+        #print(conf)
+        self.num_layers = int(conf['num_layers'])
+        self.num_units = int(conf['num_units'])
+        self.keep_prob = float(conf['keep_prob'])
+        
+
+    def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
+        with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
+            print("inputs" + str(inputs.shape))
+            shape = [tf.shape(inputs)[0] , 11, 13]
+            inputs_seq = tf.reshape(inputs, tf.stack(shape)  ) 
+            inputs_seq = tf.transpose(inputs_seq, [1, 0, 2] )
+            # apply the dropout for the inputs to the first hidden layer
+            if is_training and self.keep_prob < 1:
+                inputs_seq = tf.nn.dropout(inputs_seq, self.keep_prob)
+                
+            num_steps = shape[1]
+
+            ## define the whole lstm layer
+            #    
+            # 1. define the basic lstm layer 
+            if is_training:
+                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+                            input_size=None, activation=tf.nn.relu, layer_norm=False, norm_gain=1.0, 
+                            norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None)
+                            
+            lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+                            input_size=None, activation=tf.nn.relu, layer_norm=False, norm_gain=1.0, 
+                            norm_shift=0.0, dropout_keep_prob=1, dropout_prob_seed=None)     
+            # 2. stack the lstm to form multi-layers
+            cell = tf.contrib.rnn.MultiRNNCell(
+                [lstm_cell]*self.num_layers, state_is_tuple=True)
+
+                
+            print("inputs_seq:" + str(inputs_seq.shape))
+            final_nonseq_inputs = tf.unstack(inputs_seq, num=num_steps, axis=0)
+            print("final_nonseq_inputs:" + str(np.array(final_nonseq_inputs).shape))
+
+            # feed the data to lstm layer and output, only the final output
+            outputs, states = tf.contrib.rnn.static_rnn(cell, final_nonseq_inputs, dtype=tf.float32)
+            print("outputs" + str(np.array(outputs).shape))
+            # why the output is 11, where is the batch size 
+            outputs = outputs[-1]
+            
+            return outputs
+            
+            
+            
+            

@@ -80,11 +80,18 @@ class BatchDispenser(object):
         #set up the data lists.
         batch_inputs = []
         batch_targets = []
+        
+        # the looped flag set to false
+        looped=False
 
         while len(batch_inputs) < self.size:
         
             #read utterance
             utt_id, utt_mat, _ = self.feature_reader.get_utt()
+            
+            # once the _ is True, we set the looped flag to true
+            if _:
+                looped = True
 
             #get transcription
             if utt_id in self.target_dict and utt_mat is not None:
@@ -99,7 +106,7 @@ class BatchDispenser(object):
                 if utt_mat is None:
                     print( 'WARNING %s is too short to splice' % utt_id)
 
-        return batch_inputs, batch_targets
+        return batch_inputs, batch_targets, looped
 
     # 所有数据使用numpy.array处理
     # inputs的shape均为（帧数，特征维度）

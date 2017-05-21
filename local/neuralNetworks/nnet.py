@@ -3,6 +3,7 @@ contains the functionality for a Kaldi style neural network'''
 
 import shutil
 import os
+import math
 import itertools
 import numpy as np
 import tensorflow as tf
@@ -26,6 +27,7 @@ class Nnet(object):
 
         #get nnet structure configs
         self.conf = dict(conf.items('nnet'))
+        self.lstm_conf = dict(conf.items('lstm'))
 
         #define location to save neural nets
         self.conf['savedir'] = (conf.get('directories', 'expdir')
@@ -72,11 +74,15 @@ class Nnet(object):
                 activation, float(self.conf['dropout']))
                 
         self.ACC_THRESHOLD = float(self.conf['acc_threshold'])
+        # the flag to know where we have smaller the ACC_THRESHOLD
+        self.ACC_FLAG = True
+        
+        self.epoch_count = 0
 
         #create a DNN
         self.dnn = DNN(
             num_labels, int(self.conf['num_hidden_layers']),
-            int(self.conf['num_hidden_units']), activation,
+            int(self.conf['num_hidden_units']), self.lstm_conf, activation,
             int(self.conf['add_layer_period']) > 0)
 
     def train(self, dispenser):
@@ -89,7 +95,7 @@ class Nnet(object):
 
         #get the validation set
         val_data, val_labels = zip(
-            *[dispenser.get_batch()
+            *[dispenser.get_batch()[0:2]
               for _ in range(int(self.conf['valid_batches']))])
 
         val_data = list(itertools.chain.from_iterable(val_data))
@@ -156,7 +162,11 @@ class Nnet(object):
             while step < num_steps:
 
                 #get a batch of data
-                batch_data, batch_labels = dispenser.get_batch()
+                batch_data, batch_labels, looped = dispenser.get_batch()
+                
+                if looped:
+                    self.epoch_count = self.epoch_count + 1
+                    print('the epoch ' + str(self.epoch_count) + ' has been processed')
 
                 #update the model
                 loss = trainer.update(batch_data, batch_labels)
@@ -179,9 +189,11 @@ class Nnet(object):
                         #back to the previous validation step
                         
                         # 在迭代后期，让学习率趋于变小
-                        if step == 750:
+                        if self.epoch_count == 10 and self.ACC_FLAG:
                             self.ACC_THRESHOLD = self.ACC_THRESHOLD/10.0
-                            print('set ACC_THRESHOLD to: 0')
+                            self.ACC_FLAG = False
+                            print('reset the ACC_THRESHOLD')
+                            
                         if current_acc + self.ACC_THRESHOLD < validation_acc:
 
                             #go back in the dispenser
@@ -287,10 +299,12 @@ class Nnet(object):
                 output = decoder(utt_mat)
 
                 #get state likelihoods by dividing by the prior
+                # Note: here we should let the tran result return to the variable
+                prior = np.where(prior == 0, np.finfo(float).eps, prior)
                 output = output/prior
-
+                
                 #floor the values to avoid problems with log
-                np.where(output == 0, np.finfo(float).eps, output)
+                output = np.where(output == 0, np.finfo(float).eps, output)
 
                 #write the pseudo-likelihoods in kaldi feature format
                 writer.write_next_utt(utt_id, np.log(output))

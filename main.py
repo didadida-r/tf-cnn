@@ -20,7 +20,7 @@ import ark, prepare_data, feature_reader, batchdispenser, target_coder
 import nnet
 
 #here you can set which steps should be executed. If a step has been executed in the past the result have been saved and the step does not have to be executed again (if nothing has changed)
-TRAIN_NNET = True
+TRAIN_NNET = False
 TEST_NNET = True
 DEV_NNET = True
 
@@ -100,7 +100,10 @@ if TRAIN_NNET:
     # 将maxlength写入文件    
     with open(train_features_dir + "/maxlength", 'w') as f:
         f.write("%s"%max_input_length)
-        print("the utt's maxlength is: " + str(max_input_length))
+        print("the utt's maxlength is: " + str(max_input_length))   
+    with open(train_features_dir + "/total_frames", 'w') as f:
+        f.write("%s"%total_frames)
+        print("the total frame in training set is: " + str(total_frames))
 
     # Here we directly use the feats in fmllr
     # So we ignore the cmvn process
@@ -118,9 +121,13 @@ if TRAIN_NNET:
     print('------- training neural net ----------')
     
     # use tf-kaldi to process the nnet
+    start = time.clock()
     nnet.train(dispenser)
+    end = time.clock()
+    print('the nnet training time is : ' + str((end-start)/60) + '/min')
     
 if DEV_NNET:
+    start = time.clock()
     #use the neural net to calculate posteriors for the testing set
     print('------- Dev: computing state pseudo-likelihoods ----------')
     savedir = store_expdir + '/' + config.get('nnet', 'name')
@@ -177,7 +184,11 @@ if DEV_NNET:
         (current_dir, config.get('directories', 'decode_num_jobs'), 
             decodedir, decodedir, decodedir, decodedir))
     
+    end = time.clock()
+    print('the nnet decode time in dev is : ' + str((end-start)/60) + '/min')
+    
 if TEST_NNET:
+    start = time.clock()
     #use the neural net to calculate posteriors for the testing set
     print('------- Test: computing state pseudo-likelihoods ----------')
     savedir = store_expdir + '/' + config.get('nnet', 'name')
@@ -234,6 +245,9 @@ if TEST_NNET:
     os.system('%s/local/kaldi/decode.sh --nj %s %s/graph %s %s/kaldi_decode | tee %s/decode.log || exit 1;' % 
         (current_dir, config.get('directories', 'decode_num_jobs'), 
             decodedir, decodedir, decodedir, decodedir))
+            
+    end = time.clock()
+    print('the nnet decode time in test is : ' + str((end-start)/60) + '/min')
 
 #get results
 os.system('grep Sum tf-exp/cnn/decode_dev/*decode/score_*/*.sys 2>/dev/null | utils/best_wer.sh')

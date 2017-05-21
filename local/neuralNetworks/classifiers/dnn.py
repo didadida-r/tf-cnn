@@ -4,13 +4,13 @@ The DNN neural network classifier'''
 import seq_convertors
 import tensorflow as tf
 from classifier import Classifier
-from layer import FFLayer, ConvLayer, CnnLayer
+from layer import FFLayer, CnnLayer, LSTMLayer
 from activation import TfActivation
 
 class DNN(Classifier):
     '''This class is a graph for feedforward fully connected neural nets.'''
 
-    def __init__(self, output_dim, num_layers, num_units, activation,
+    def __init__(self, output_dim, num_layers, num_units, lstm_conf, activation,
                  layerwise_init=True):
         '''
         DNN constructor
@@ -31,6 +31,7 @@ class DNN(Classifier):
         #save all the DNN properties
         self.num_layers = num_layers
         self.num_units = num_units
+        self.lstm_conf = lstm_conf
         self.activation = activation
         self.layerwise_init = layerwise_init
 
@@ -69,10 +70,17 @@ class DNN(Classifier):
             nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
             activations = [None]*self.num_layers
             
+            ## the conv layer
             #cnn_layer = RestNet()
             #cnn_layer = CnnVd6()
-            cnn_layer = CnnLayer()
-            activations[0] = cnn_layer(nonseq_inputs, is_training, reuse, 'layer0')
+            #cnn_layer = CnnLayer()
+            #activations[0] = cnn_layer(nonseq_inputs, is_training, reuse, 'layer0')
+            
+            # the lstm layer
+            lstm_layer = LSTMLayer(self.lstm_conf)
+            activations[0] = lstm_layer(nonseq_inputs, is_training, reuse, 'layer0')
+            
+            print("use %d FL hidden layer" % (self.num_layers-1))
             for l in range(1, self.num_layers):
                 activations[l] = layer(activations[l-1], is_training, reuse,
                                        'layer' + str(l))

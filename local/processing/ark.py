@@ -196,7 +196,6 @@ class ArkWriter(object):
             utt_id: the utterance ID
             utt_mat: a numpy array containing the utterance data
         '''
-
         ark = ark_path or self.default_ark
         ark_file_write = open(ark, 'ab')
         utt_mat = np.asarray(utt_mat, dtype=np.float32)
