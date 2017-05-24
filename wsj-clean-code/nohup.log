@@ -1,0 +1,19 @@
+nohup: ignoring input
+============================================================================
+         MFCC Feature Extration & CMVN           
+============================================================================
+============================================================================
+             Store mfcc with deltas and cmvn                    
+============================================================================
+local/store_fbank.sh --nj 20 --apply_deltas true --cmd queue.pl -q CPU_QUEUE -l ram_free=1.5G,mem_free=1.5G,io=2.0 data-tmp/train_si284 data-tf/train_si284 data-tmp/train_si284/log data-tmp/train_si284/data
+apply delta tran
+utils/copy_data_dir.sh: copied data from data-tf/train_si284 to data-tmp/train_si284
+utils/validate_data_dir.sh: Successfully validated data-directory data-tmp/train_si284
+============================================================================
+             Train and decode neural network acoustic model               
+============================================================================
+start a new sge
+queue.pl: job failed with status 139, log is in sge.log
+the Count is : 1
+Core_Count is  1
+start a new sge

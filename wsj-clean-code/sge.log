@@ -1,0 +1,147 @@
+# Running on compute-0-3
+# Started at Tue May 23 20:10:55 CST 2017
+# dnn.sh 
+Tue May 23 20:10:55 2017       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 375.39                 Driver Version: 375.39                    |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  Tesla K10.G2.8GB    On   | 0000:06:00.0     Off |                    0 |
+| N/A   59C    P0    76W / 117W |   2121MiB /  3527MiB |     79%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   1  Tesla K10.G2.8GB    On   | 0000:07:00.0     Off |                    0 |
+| N/A   56C    P0    76W / 117W |   2121MiB /  3527MiB |     85%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   2  Tesla K10.G2.8GB    On   | 0000:0A:00.0     Off |                    0 |
+| N/A   55C    P0    77W / 117W |   1097MiB /  3527MiB |     79%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   3  Tesla K10.G2.8GB    On   | 0000:0B:00.0     Off |                    0 |
+| N/A   54C    P0    77W / 117W |   1097MiB /  3527MiB |     77%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   4  Tesla K10.G2.8GB    On   | 0000:87:00.0     Off |                    0 |
+| N/A   33C    P8    30W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   5  Tesla K10.G2.8GB    On   | 0000:88:00.0     Off |                    0 |
+| N/A   29C    P8    18W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   6  Tesla K10.G2.8GB    On   | 0000:8B:00.0     Off |                    0 |
+| N/A   31C    P8    17W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   7  Tesla K10.G2.8GB    On   | 0000:8C:00.0     Off |                    0 |
+| N/A   28C    P8    17W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   8  Tesla K10.G2.8GB    On   | 0000:91:00.0     Off |                    0 |
+| N/A   31C    P8    19W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|   9  Tesla K10.G2.8GB    On   | 0000:92:00.0     Off |                    0 |
+| N/A   29C    P8    N/A /  N/A |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|  10  Tesla K10.G2.8GB    On   | 0000:95:00.0     Off |                    0 |
+| N/A   30C    P8    17W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+|  11  Tesla K10.G2.8GB    On   | 0000:96:00.0     Off |                    0 |
+| N/A   27C    P8    17W / 117W |      0MiB /  3527MiB |      0%   E. Process |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID  Type  Process name                               Usage      |
+|=============================================================================|
+|    0     21339    C   python3                                       2119MiB |
+|    1       668    C   python3                                       2119MiB |
+|    2     14214    C   python3                                       1095MiB |
+|    3     12782    C   python3                                       1095MiB |
++-----------------------------------------------------------------------------+
+export CUDA_VISIBLE_DEVICES=4
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcublas.so.8.0 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcudnn.so.5 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcufft.so.8.0 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:135] successfully opened CUDA library libcurand.so.8.0 locally
+the input dim is:585
+the output labels is:3381
+XR_FLAG
+------- get alignments ----------
+ali-to-pdf exp/tri4b_ali_si284/final.mdl ark:- ark,t:- 
+copy-int-vector 'ark:gunzip -c tf-exp/lstm/ali.binary.gz |' ark:- 
+LOG (copy-int-vector:main():copy-int-vector.cc:83) Copied 37299 vectors of int32.
+LOG (ali-to-pdf:main():ali-to-pdf.cc:68) Converted 37299 alignments to pdf sequences.
+the total frames is: 29179991
+the utt's maxlength is: 2433
+------- training neural net ----------
+------The LSTM Config------
+inputs(?, 585)
+inputs_seq:(15, ?, 39)
+final_nonseq_inputs:(15,)
+outputs(15,)
+------The DNN Config------
+use 0 FL hidden layer
+------The LSTM Config------
+inputs(?, 585)
+inputs_seq:(15, ?, 39)
+final_nonseq_inputs:(15,)
+outputs(15,)
+------The DNN Config------
+use 0 FL hidden layer
+/home/xiaorong/dev/python3.4/lib/python3.4/site-packages/tensorflow/python/ops/gradients_impl.py:91: UserWarning: Converting sparse IndexedSlices to a dense Tensor of unknown shape. This may consume a large amount of memory.
+  "Converting sparse IndexedSlices to a dense Tensor of unknown shape. "
+WARNING:tensorflow:VARIABLES collection name is deprecated, please use GLOBAL_VARIABLES instead; VARIABLES will be removed after 2017-03-02.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE3 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:885] Found device 0 with properties: 
+name: Tesla K10.G2.8GB
+major: 3 minor: 0 memoryClockRate (GHz) 0.745
+pciBusID 0000:87:00.0
+Total memory: 3.44GiB
+Free memory: 3.41GiB
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:906] DMA: 0 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:916] 0:   Y 
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:975] Creating TensorFlow device (/gpu:0) -> (device: 0, name: Tesla K10.G2.8GB, pci bus id: 0000:87:00.0)
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 2442 get requests, put_count=1104 evicted_count=1000 eviction_rate=0.905797 and unsatisfied allocation rate=0.998362
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 100 to 110
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 0 get requests, put_count=1014 evicted_count=1000 eviction_rate=0.986193 and unsatisfied allocation rate=0
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 2456 get requests, put_count=2267 evicted_count=2000 eviction_rate=0.882223 and unsatisfied allocation rate=0.899837
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 233 to 256
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 0 get requests, put_count=1033 evicted_count=1000 eviction_rate=0.968054 and unsatisfied allocation rate=0
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 2456 get requests, put_count=1663 evicted_count=1000 eviction_rate=0.601323 and unsatisfied allocation rate=0.752036
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 596 to 655
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 2456 get requests, put_count=2160 evicted_count=1000 eviction_rate=0.462963 and unsatisfied allocation rate=0.566368
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 1053 to 1158
+validation loss at step 0: 8.134487, acc is 0.000260
+WARNING no targets for 47hc030g
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:247] PoolAllocator: After 3303 get requests, put_count=3633 evicted_count=1000 eviction_rate=0.275255 and unsatisfied allocation rate=0.277626
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:259] Raising pool_size_limit_ from 2725 to 2997
+step 0/2331 loss: 8.132981
+step 1/2331 loss: 8.090842
+step 2/2331 loss: 7.911510
+step 3/2331 loss: 7.650992
+step 4/2331 loss: 7.232162
+step 5/2331 loss: 6.868826
+step 6/2331 loss: 6.980328
+step 7/2331 loss: 6.728092
+step 8/2331 loss: 6.652305
+step 9/2331 loss: 6.661602
+validation loss at step 10: 6.365220, the acc is: 0.102526
+step 10/2331 loss: 6.392142
+step 11/2331 loss: 6.318118
+step 12/2331 loss: 6.299456
+step 13/2331 loss: 6.262012
+step 14/2331 loss: 6.071719
+step 15/2331 loss: 5.951156
+step 16/2331 loss: 6.062218
+step 17/2331 loss: 5.921717
+step 18/2331 loss: 5.733148
+step 19/2331 loss: 5.745992
+validation loss at step 20: 5.717000, the acc is: 0.126128
+step 20/2331 loss: 5.704515
+WARNING no targets for 473c031b
+step 21/2331 loss: 5.627126
+step 22/2331 loss: 5.438078
+step 23/2331 loss: 5.491932
+step 24/2331 loss: 5.405344
+step 25/2331 loss: 5.345590
+step 26/2331 loss: 5.188455
