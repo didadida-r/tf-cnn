@@ -137,25 +137,45 @@ class LSTMLayer(object):
         self.keep_prob = float(conf['keep_prob'])
         self.freq_dim = int(conf['freq_dim'])
         self.time_steps = int(conf['time_steps'])
+        
         if conf['layer_norm'] == 'True':
             self.layer_norm = True
         else:
             self.layer_norm = False
+        if conf['is_tf_lstm'] == 'True':
+            self.is_tf_lstm = True
+            self.frequency_skip = int(conf['frequency_skip'])
+            # the f-step's input size, default 8
+            self.feature_size = int(conf['feature_size'])
+            # the f-lstm cell number
+            self.tf_num_units = int(conf['tf_num_units'])
+        else:
+            self.is_tf_lstm = False
+            
         
 
     def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
-            print("inputs" + str(inputs.shape))
+            # reshape the inputs like the format: [time_steps, batch, fre_dim]
+            print("the inputs is: " + str(inputs.shape))
             shape = [tf.shape(inputs)[0] , self.time_steps, self.freq_dim]
             inputs_seq = tf.reshape(inputs, tf.stack(shape)  ) 
             inputs_seq = tf.transpose(inputs_seq, [1, 0, 2] )
+            
             # apply the dropout for the inputs to the first hidden layer
             if is_training and self.keep_prob < 1:
                 inputs_seq = tf.nn.dropout(inputs_seq, self.keep_prob)
                 
             num_steps = shape[1]
+            
+            ## define the tf-lstm layers
+            if self.is_tf_lstm:
+                tf_lstm_cell = tf.contrib.rnn.TimeFreqLSTMCell(self.tf_num_units, use_peepholes=False,
+                                cell_clip=None, initializer=None,
+                                num_unit_shards=1, forget_bias=1.0,
+                                feature_size=self.feature_size, frequency_skip=self.frequency_skip, feature_dim=self.freq_dim)
 
-            ## define the whole lstm layer
+            ## define the time-process lstm layer
             #    
             # 1. define the basic lstm layer 
             if is_training:
@@ -171,15 +191,26 @@ class LSTMLayer(object):
                 [lstm_cell]*self.num_layers, state_is_tuple=True)
 
                 
-            print("inputs_seq:" + str(inputs_seq.shape))
+            print("the lstm reshape inputs is: " + str(inputs_seq.shape))
+            # tran every time_steps to a list element, so the final_noseq_inputs
+            # has the format like the List: [steps0, steps1, ..., stepsN]
+            # and every steps hase the format: batch x freq-dim  
             final_nonseq_inputs = tf.unstack(inputs_seq, num=num_steps, axis=0)
-            print("final_nonseq_inputs:" + str(np.array(final_nonseq_inputs).shape))
-
-            # feed the data to lstm layer and output, only the final output
-            outputs, states = tf.contrib.rnn.static_rnn(cell, final_nonseq_inputs, dtype=tf.float32)
-            print("outputs" + str(np.array(outputs).shape))
-            # why the output is 11, where is the batch size 
+            #print("final_nonseq_inputs:" + str(np.array(final_nonseq_inputs).shape))
+            
+            # feed the data to lstm layer and output
+            if self.is_tf_lstm:
+                tf_outputs, tf_states = tf.contrib.rnn.static_rnn(tf_lstm_cell, final_nonseq_inputs, dtype=tf.float32)
+                print("the tf-lstm inputs is: " + str(len(tf_outputs)) + " " + str(tf_outputs[0].shape) )
+                outputs, states = tf.contrib.rnn.static_rnn(cell, tf_outputs, dtype=tf.float32)
+            else:
+                outputs, states = tf.contrib.rnn.static_rnn(cell, final_nonseq_inputs, dtype=tf.float32)
+                
+                
+            #outputs, states = tf.contrib.rnn.static_rnn(cell, final_nonseq_inputs, dtype=tf.float32)
+            # only get the final steps's output, the format is : batch x lstm_unit_units
             outputs = outputs[-1]
+            print("the lstm outputs is: " + str(outputs.shape))
             
             return outputs
             

@@ -42,7 +42,12 @@ class DNN(Classifier):
             self.use_lstm = False
 
         #save all the DNN properties
-        self.num_layers = num_layers
+        self.FL_num_layers = num_layers
+        # mean the lstm or cnn layers
+        num_other_layers = 1
+        # contain the FL_hidden layer and lstm/cnn layers
+        self.num_layers = self.FL_num_layers + num_other_layers
+            
         self.num_units = num_units
         self.activation = activation
         self.layerwise_init = layerwise_init
@@ -80,8 +85,10 @@ class DNN(Classifier):
 
             #convert the sequential data to non sequential data
             nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
+            
             activations = [None]*self.num_layers
             
+            # Define the first hidden layers 
             # # the conv layer
             #cnn_layer = RestNet()
             #cnn_layer = CnnVd6()
@@ -96,8 +103,9 @@ class DNN(Classifier):
                 lstm_layer = LSTMLayer(self.lstm_conf)
                 activations[0] = lstm_layer(nonseq_inputs, is_training, reuse, 'layer0')
             
+            # define the FL hidden layers
             print('------The DNN Config------')
-            print("use %d FL hidden layer" % (self.num_layers-1))
+            print("use %d FL hidden layer" % (self.FL_num_layers))
             for l in range(1, self.num_layers):
                 activations[l] = layer(activations[l-1], is_training, reuse,
                                        'layer' + str(l))
@@ -138,7 +146,7 @@ class DNN(Classifier):
                     tf.get_collection(
                         tf.GraphKeys.VARIABLES,
                         scope=(tf.get_variable_scope().name + '/layer'
-                               + str(self.num_layers))))
+                               + str(self.FL_num_layers))))
 
                 control_ops = {'add':add_layer_op, 'init':init_last_layer_op}
             else:

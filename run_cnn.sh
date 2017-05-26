@@ -1,16 +1,13 @@
 #!/bin/bash
 . ./cmd.sh 
 [ -f path.sh ] && . ./path.sh
-set -e
-
-gpu_ids=4
 
 feats_nj=20
-stage=-2
 
 Fbank_Feature=false
-MFCC_Feature=true
+MFCC_Feature=false
 fMLLR_Feature=false
+Train_Nnet=true
 
 # 这里需要将前面生成的data文件夹复制到data-fbank中，否则下面的程序会修改原来data中的数据格式为fbank
 # 选择不压缩
@@ -95,13 +92,31 @@ fi
 
 exit
 
-if [ $stage -le -2 ];then
-echo ============================================================================
-echo "             Train and decode neural network acoustic model               "
-echo ============================================================================
+if $Train_Nnet; then
+    echo ============================================================================
+    echo "             Train and decode neural network acoustic model               "
+    echo ============================================================================
+    $cuda_cmd -l h=compute-0-3 sge.log dnn.sh &
+    echo "start a new sge"
+    Count=0
 
-[ -f path.sh ] && source path.sh
-
-CUDA_VISIBLE_DEVICES=$gpu_ids python3 main.py
+    while (($(($Count%2))!=0))  || (($Count==0)); do
+          sleep 20;
+          Count=`cat sge.log| grep -c "XR_FLAG"`
+          Core_Count=`cat sge.log| grep -c "Segmentation fault"`
+          if (($(($Count%2))!=0))  && (($Core_Count!=0)); then 
+          	 echo "the Count is :"  $Count
+              echo "Core_Count is " $Core_Count
+              $cuda_cmd -l h=compute-0-3 sge.log dnn.sh &     
+              echo "start a new sge"
+          fi
+          Error=`cat sge.log | grep -c "Traceback"`
+          if (($Error!=0)); then
+            echo "Some Error happens"
+            break
+          fi
+    done
+    echo "end sge"
+    echo "the Count is :"  $Count
 fi
 
