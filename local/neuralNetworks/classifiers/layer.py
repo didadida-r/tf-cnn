@@ -136,7 +136,8 @@ class LSTMLayer(object):
         self.num_units = int(conf['num_units'])
         self.keep_prob = float(conf['keep_prob'])
         self.freq_dim = int(conf['freq_dim'])
-        self.time_steps = int(conf['time_steps'])
+        self.time_steps = int(conf['time_steps'])   # here we only use the input frame and the future frame
+        self.context = (self.time_steps-1) * 2 + 1      # the inputs is sliced in feature process
         
         if conf['layer_norm'] == 'True':
             self.layer_norm = True
@@ -151,23 +152,25 @@ class LSTMLayer(object):
             self.tf_num_units = int(conf['tf_num_units'])
         else:
             self.is_tf_lstm = False
-            
-        
+
 
     def __call__(self, inputs, is_training=False, reuse=False, scope=None):        
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
             # reshape the inputs like the format: [time_steps, batch, fre_dim]
             print("the inputs is: " + str(inputs.shape))
-            shape = [tf.shape(inputs)[0] , self.time_steps, self.freq_dim]
-            inputs_seq = tf.reshape(inputs, tf.stack(shape)  ) 
+            shape = [tf.shape(inputs)[0] , self.context, self.freq_dim]
+            inputs_seq = tf.reshape(inputs, tf.stack(shape) ) 
             inputs_seq = tf.transpose(inputs_seq, [1, 0, 2] )
+            # do not use the former input frame
+            inputs_seq = tf.slice(inputs_seq, [self.time_steps-1, 0, 0], [self.time_steps, -1, -1])
+            print("the slice inputs is: " + str(inputs_seq.shape))
             
             # apply the dropout for the inputs to the first hidden layer
             if is_training and self.keep_prob < 1:
                 inputs_seq = tf.nn.dropout(inputs_seq, self.keep_prob)
-                
-            num_steps = shape[1]
-            
+            else:
+                self.keep_prob = 1.0
+
             ## define the tf-lstm layers
             if self.is_tf_lstm:
                 tf_lstm_cell = tf.contrib.rnn.TimeFreqLSTMCell(self.tf_num_units, use_peepholes=False,
@@ -178,14 +181,10 @@ class LSTMLayer(object):
             ## define the time-process lstm layer
             #    
             # 1. define the basic lstm layer 
-            if is_training:
-                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
-                            input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
-                            norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None)
-                            
             lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
-                            input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
-                            norm_shift=0.0, dropout_keep_prob=1.0, dropout_prob_seed=None)     
+                        input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
+                        norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None)
+ 
             # 2. stack the lstm to form multi-layers
             cell = tf.contrib.rnn.MultiRNNCell(
                 [lstm_cell]*self.num_layers, state_is_tuple=True)
@@ -195,7 +194,7 @@ class LSTMLayer(object):
             # tran every time_steps to a list element, so the final_noseq_inputs
             # has the format like the List: [steps0, steps1, ..., stepsN]
             # and every steps hase the format: batch x freq-dim  
-            final_nonseq_inputs = tf.unstack(inputs_seq, num=num_steps, axis=0)
+            final_nonseq_inputs = tf.unstack(inputs_seq, num=self.time_steps, axis=0)
             #print("final_nonseq_inputs:" + str(np.array(final_nonseq_inputs).shape))
             
             # feed the data to lstm layer and output
@@ -210,6 +209,81 @@ class LSTMLayer(object):
             #outputs, states = tf.contrib.rnn.static_rnn(cell, final_nonseq_inputs, dtype=tf.float32)
             # only get the final steps's output, the format is : batch x lstm_unit_units
             outputs = outputs[-1]
+            print("the lstm outputs is: " + str(outputs.shape))
+            
+            return outputs
+        
+class LSTMLayer2(object):
+
+    def __init__(self, conf):
+        self.num_layers = int(conf['num_layers'])
+        self.num_units = int(conf['num_units'])
+        self.num_proj = int(conf['num_proj'])
+        self.keep_prob = float(conf['keep_prob'])
+        self.freq_dim = int(conf['freq_dim'])
+        
+        if conf['layer_norm'] == 'True':
+            self.layer_norm = True
+        else:
+            self.layer_norm = False
+        
+        ## tf-lstm conf
+        if conf['is_tf_lstm'] == 'True':
+            self.is_tf_lstm = True
+            self.frequency_skip = int(conf['frequency_skip'])
+            # the f-step's input size, default 8
+            self.feature_size = int(conf['feature_size'])
+            # the f-lstm cell number
+            self.tf_num_units = int(conf['tf_num_units'])
+        else:
+            self.is_tf_lstm = False
+
+    def __call__(self, inputs_seq, seq_length, is_training=False, reuse=False, scope=None):        
+        with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
+            
+            #print(inputs_seq)
+            print("the seq inputs is: " + str(len(inputs_seq)))
+            print(inputs_seq[1].shape)
+            #print(inputs_seq)
+
+            # apply the dropout for the inputs to the first hidden layer
+            if is_training and self.keep_prob < 1:
+                inputs_seq = tf.nn.dropout(inputs_seq, self.keep_prob)
+            else:
+                self.keep_prob = 1.0
+
+            ## define the time-process lstm layer
+            #    
+            # 1. define the basic lstm layer 
+#            lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+#                        input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
+#                        norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None)   
+                   
+            lstm_cell = tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
+               use_peepholes=False, cell_clip=None,
+               initializer=None, num_proj=self.num_proj, proj_clip=None,
+               num_unit_shards=None, num_proj_shards=None,
+               forget_bias=1.0, state_is_tuple=True,
+               activation=tf.nn.relu)
+            
+            # 2. stack the lstm to form multi-layers
+            cell = tf.contrib.rnn.MultiRNNCell(
+                [lstm_cell]*self.num_layers, state_is_tuple=True)
+            
+            ## For the static inputs
+            #final_nonseq_inputs = tf.unstack(inputs_seq, num=777, axis=0)
+            #outputs, states = tf.contrib.rnn.static_rnn(cell, final_nonseq_inputs, dtype=tf.float32)
+            
+            ## For the dynamic inputs
+            # the inputs_seq: [t1, t2, tN] in List && each t1 is: batch x fre_dim in 2-D Tensor
+            # the final_nonseq_inputs: time x batch x fre_dim in 3-D Tensor
+            final_nonseq_inputs = tf.stack(inputs_seq, axis=0)
+            outputs, states = tf.nn.dynamic_rnn(cell, final_nonseq_inputs, seq_length, time_major=True, dtype=tf.float32)
+            
+            #print(seq_length)
+            #print(len(outputs))
+            #print(outputs.shape)
+            #outputs = outputs[-1]
             print("the lstm outputs is: " + str(outputs.shape))
             
             return outputs

@@ -4,7 +4,7 @@ The DNN neural network classifier'''
 import seq_convertors
 import tensorflow as tf
 from classifier import Classifier
-from layer import FFLayer, CnnLayer, LSTMLayer
+from layer import FFLayer, CnnLayer, LSTMLayer, LSTMLayer2
 from activation import TfActivation
 
 class DNN(Classifier):
@@ -31,6 +31,10 @@ class DNN(Classifier):
         # conf
         self.cnn_conf = dict(conf.items('cnn'))
         self.lstm_conf = dict(conf.items('lstm'))
+        self.lstm_conf2 = dict(conf.items('lstm2'))
+        
+        # here we should detect only one type of lstm is true
+        pass
         
         if self.cnn_conf['use_cnn'] == 'True':
             self.use_cnn = True
@@ -84,7 +88,8 @@ class DNN(Classifier):
                                TfActivation(None, lambda x: x), 0)
 
             #convert the sequential data to non sequential data
-            nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
+            ## if you wanna use the pure dnn, please uncommit this line 
+            #nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
             
             activations = [None]*self.num_layers
             
@@ -92,17 +97,37 @@ class DNN(Classifier):
             # # the conv layer
             #cnn_layer = RestNet()
             #cnn_layer = CnnVd6()
-            if self.use_cnn:
+            if self.cnn_conf['use_cnn'] == 'True':
                 print('------The Cnn Config------')
+                #convert the sequential data to non sequential data
+                nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
+                
                 cnn_layer = CnnLayer(self.cnn_conf)
                 activations[0] = cnn_layer(nonseq_inputs, is_training, reuse, 'layer0')
             
-            # # the lstm layer
-            if self.use_lstm:
+            # # the lstm layer, type 1
+            if self.lstm_conf['use_lstm'] == 'True':
                 print('------The LSTM Config------')
+                #convert the sequential data to non sequential data
+                nonseq_inputs = seq_convertors.seq2nonseq(inputs, seq_length)
+                print('Type1: The lstm data process is the similar to dnn')
+                
                 lstm_layer = LSTMLayer(self.lstm_conf)
                 activations[0] = lstm_layer(nonseq_inputs, is_training, reuse, 'layer0')
-            
+            ## the lstm layer, type 2
+            elif self.lstm_conf2['use_lstm'] == 'True':
+                print('------The LSTM Config------')
+                print('Type2: The lstm data process is totally sequencial')
+                
+                # here we directly use the seq data, that's para: inputs
+                lstm_layer = LSTMLayer2(self.lstm_conf2)
+                # the dynamic lstm's output has the format: time x batch_size x feature_dim
+                seq_output = lstm_layer(inputs, seq_length, is_training, reuse, 'layer0')
+                
+                # to connect the dnn, we should tran the seq output to no-seq
+                # so we can use directly with dnn
+                activations[0] = seq_convertors.seq2nonseq(seq_output, seq_length)
+                
             # define the FL hidden layers
             print('------The DNN Config------')
             print("use %d FL hidden layer" % (self.FL_num_layers))
@@ -136,9 +161,9 @@ class DNN(Classifier):
             else:
                 logits = activations[-1]
 
+            
             logits = outlayer(logits, is_training, reuse,
                               'layer' + str(self.num_layers))
-
 
             if self.layerwise_init:
                 #operation to initialise the final layer

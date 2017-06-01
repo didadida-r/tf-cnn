@@ -72,6 +72,9 @@ class Nnet(object):
             activation = classifiers.activation.Dropout(
                 activation, float(self.conf['dropout']))
                 
+        # determine which epoch we reset the acc threshold
+        self.ACC_RESET_EPOCH = float(self.conf['acc_reset_epoch'])
+        # the acc threshold to control the training 
         self.ACC_THRESHOLD = float(self.conf['acc_threshold'])
         # the flag to know where we have smaller the ACC_THRESHOLD
         self.ACC_FLAG = True
@@ -188,7 +191,7 @@ class Nnet(object):
                         #back to the previous validation step
                         
                         # 在迭代后期，让学习率趋于变小
-                        if self.epoch_count == 10 and self.ACC_FLAG:
+                        if self.epoch_count == self.ACC_RESET_EPOCH and self.ACC_FLAG:
                             self.ACC_THRESHOLD = self.ACC_THRESHOLD/10.0
                             self.ACC_FLAG = False
                             print('reset the ACC_THRESHOLD')
