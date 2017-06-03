@@ -137,7 +137,7 @@ class LSTMLayer(object):
         self.keep_prob = float(conf['keep_prob'])
         self.freq_dim = int(conf['freq_dim'])
         self.time_steps = int(conf['time_steps'])   # here we only use the input frame and the future frame
-        self.context = (self.time_steps-1) * 2 + 1      # the inputs is sliced in feature process
+        #self.context = (self.time_steps-1) * 2 + 1      # the inputs is sliced in feature process
         
         if conf['layer_norm'] == 'True':
             self.layer_norm = True
@@ -158,7 +158,8 @@ class LSTMLayer(object):
         with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
             # reshape the inputs like the format: [time_steps, batch, fre_dim]
             print("the inputs is: " + str(inputs.shape))
-            shape = [tf.shape(inputs)[0] , self.context, self.freq_dim]
+            assert inputs.shape[1] == self.time_steps*self.freq_dim, "the total splice context (context_left + context_right + 1) should equal to " + str(self.time_steps)
+            shape = [tf.shape(inputs)[0] , self.time_steps, self.freq_dim]
             inputs_seq = tf.reshape(inputs, tf.stack(shape) ) 
             inputs_seq = tf.transpose(inputs_seq, [1, 0, 2] )
             # do not use the former input frame
@@ -177,18 +178,37 @@ class LSTMLayer(object):
                                 cell_clip=None, initializer=None,
                                 num_unit_shards=1, forget_bias=1.0,
                                 feature_size=self.feature_size, frequency_skip=self.frequency_skip, feature_dim=self.freq_dim)
-
-            ## define the time-process lstm layer
-            #    
-            # 1. define the basic lstm layer 
-            lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+    
+             # Define the lstm layer
+            print('the tensorflow version is:' + tf.__version__)
+            if tf.__version__ == '1.1.0':
+#                cell = tf.contrib.rnn.MultiRNNCell([ tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
+#                                                       use_peepholes=False, cell_clip=None,
+#                                                       initializer=None, num_proj=self.num_proj, proj_clip=None,
+#                                                       num_unit_shards=None, num_proj_shards=None,
+#                                                       forget_bias=1.0, state_is_tuple=True,
+#                                                       activation=tf.nn.relu, reuse=reuse) 
+#                                                    for _ in range(self.num_layers)], state_is_tuple=True) 
+    
+                cell = tf.contrib.rnn.MultiRNNCell([ tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+                                                        input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
+                                                        norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None, reuse=reuse)
+                                                                for _ in range(self.num_layers)], state_is_tuple=True) 
+        
+            elif tf.__version__ == '1.0.0':
+                ## define the time-process lstm layer
+                #    
+                # 1. define the basic lstm layer 
+                       
+                lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
                         input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
                         norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None)
- 
-            # 2. stack the lstm to form multi-layers
-            cell = tf.contrib.rnn.MultiRNNCell(
-                [lstm_cell]*self.num_layers, state_is_tuple=True)
-
+                
+                # 2. stack the lstm to form multi-layers
+                cell = tf.contrib.rnn.MultiRNNCell(
+                    [lstm_cell]*self.num_layers, state_is_tuple=True)
+            else:
+                print("the tensorflow version's code is not define")
                 
             print("the lstm reshape inputs is: " + str(inputs_seq.shape))
             # tran every time_steps to a list element, so the final_noseq_inputs
@@ -213,6 +233,13 @@ class LSTMLayer(object):
             
             return outputs
         
+
+'''
+    For this type of lstm, we directly put the whole utt into the lstm network,
+    process the feed-forworad, the code here can be run
+    Problem: the decode result is terrible
+    
+'''
 class LSTMLayer2(object):
 
     def __init__(self, conf):
@@ -251,24 +278,40 @@ class LSTMLayer2(object):
                 inputs_seq = tf.nn.dropout(inputs_seq, self.keep_prob)
             else:
                 self.keep_prob = 1.0
-
-            ## define the time-process lstm layer
-            #    
-            # 1. define the basic lstm layer 
-#            lstm_cell = tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
-#                        input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
-#                        norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None)   
-                   
-            lstm_cell = tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
-               use_peepholes=False, cell_clip=None,
-               initializer=None, num_proj=self.num_proj, proj_clip=None,
-               num_unit_shards=None, num_proj_shards=None,
-               forget_bias=1.0, state_is_tuple=True,
-               activation=tf.nn.relu)
-            
-            # 2. stack the lstm to form multi-layers
-            cell = tf.contrib.rnn.MultiRNNCell(
-                [lstm_cell]*self.num_layers, state_is_tuple=True)
+                
+             # Define the lstm layer
+            print('the tensorflow version is:' + tf.__version__)
+            if tf.__version__ == '1.1.0':
+#                cell = tf.contrib.rnn.MultiRNNCell([ tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
+#                                                       use_peepholes=False, cell_clip=None,
+#                                                       initializer=None, num_proj=self.num_proj, proj_clip=None,
+#                                                       num_unit_shards=None, num_proj_shards=None,
+#                                                       forget_bias=1.0, state_is_tuple=True,
+#                                                       activation=tf.nn.relu, reuse=reuse) 
+#                                                    for _ in range(self.num_layers)], state_is_tuple=True) 
+    
+                cell = tf.contrib.rnn.MultiRNNCell([ tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+                                                        input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
+                                                        norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None, reuse=reuse)
+                                                                for _ in range(self.num_layers)], state_is_tuple=True) 
+        
+            elif tf.__version__ == '1.0.0':
+                ## define the time-process lstm layer
+                #    
+                # 1. define the basic lstm layer 
+                       
+                lstm_cell = tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
+                   use_peepholes=False, cell_clip=None,
+                   initializer=None, num_proj=self.num_proj, proj_clip=None,
+                   num_unit_shards=None, num_proj_shards=None,
+                   forget_bias=1.0, state_is_tuple=True,
+                   activation=tf.nn.relu)
+                
+                # 2. stack the lstm to form multi-layers
+                cell = tf.contrib.rnn.MultiRNNCell(
+                    [lstm_cell]*self.num_layers, state_is_tuple=True)
+            else:
+                print("the tensorflow version's code is not define")
             
             ## For the static inputs
             #final_nonseq_inputs = tf.unstack(inputs_seq, num=777, axis=0)
@@ -285,6 +328,136 @@ class LSTMLayer2(object):
             #print(outputs.shape)
             #outputs = outputs[-1]
             print("the lstm outputs is: " + str(outputs.shape))
+            
+            return outputs
+        
+'''
+    For this type of lstm, we split every utt to sub-seq with  fix-size, and then sequentially
+    feed the sub-seq to the rnn network, only for the sud-seq in the same utt, we keep use the former
+    output state
+    Problem: 
+    1 OOM for the state reuse method 
+    
+'''
+class LSTMLayer3(object):
+
+    def __init__(self, conf, max_input_length):
+        self.conf = conf
+        self.num_layers = int(conf['num_layers'])
+        self.time_steps = int(conf['time_steps'])
+        self.num_units = int(conf['num_units'])
+        self.num_proj = int(conf['num_proj'])
+        self.keep_prob = float(conf['keep_prob'])
+        self.freq_dim = int(conf['freq_dim'])
+        self.max_input_length = max_input_length
+        
+        if conf['layer_norm'] == 'True':
+            self.layer_norm = True
+        else:
+            self.layer_norm = False
+        
+        ## tf-lstm conf
+        if conf['is_tf_lstm'] == 'True':
+            self.is_tf_lstm = True
+            self.frequency_skip = int(conf['frequency_skip'])
+            # the f-step's input size, default 8
+            self.feature_size = int(conf['feature_size'])
+            # the f-lstm cell number
+            self.tf_num_units = int(conf['tf_num_units'])
+        else:
+            self.is_tf_lstm = False
+
+    def __call__(self, inputs_seq, seq_length, is_training=False, reuse=False, scope=None):        
+        with tf.variable_scope(scope or type(self).__name__, reuse=reuse): 
+
+            print("the inputs data is: ")
+            print("List with len: " + str(len(inputs_seq)) + " each element is 2-D tensor: " + str(inputs_seq[1].shape))
+
+            # apply the dropout for the inputs to the first hidden layer
+            if is_training and self.keep_prob < 1:
+                inputs_seq = tf.nn.dropout(inputs_seq, self.keep_prob)
+            else:
+                self.keep_prob = 1.0
+                
+             # Define the lstm layer
+            print('the tensorflow version is:' + tf.__version__)
+            if tf.__version__ == '1.1.0':
+                cell = tf.contrib.rnn.MultiRNNCell([ tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
+                                                       use_peepholes=False, cell_clip=None,
+                                                       initializer=None, num_proj=self.num_proj, proj_clip=None,
+                                                       num_unit_shards=None, num_proj_shards=None,
+                                                       forget_bias=1.0, state_is_tuple=True,
+                                                       activation=tf.nn.relu, reuse=reuse) 
+                                                    for _ in range(self.num_layers)], state_is_tuple=True) 
+    
+#                cell = tf.contrib.rnn.MultiRNNCell([ tf.contrib.rnn.LayerNormBasicLSTMCell(self.num_units, forget_bias=1.0, 
+#                                                        input_size=None, activation=tf.nn.relu, layer_norm=self.layer_norm, norm_gain=1.0, 
+#                                                        norm_shift=0.0, dropout_keep_prob=self.keep_prob, dropout_prob_seed=None, reuse=reuse)
+#                                                                for _ in range(self.num_layers)], state_is_tuple=True) 
+            elif tf.__version__ == '1.0.0':
+                ## define the time-process lstm layer
+                #    
+                # 1. define the basic lstm layer 
+                       
+                lstm_cell = tf.contrib.rnn.LSTMCell(self.num_units, input_size=None,
+                   use_peepholes=False, cell_clip=None,
+                   initializer=None, num_proj=self.num_proj, proj_clip=None,
+                   num_unit_shards=None, num_proj_shards=None,
+                   forget_bias=1.0, state_is_tuple=True,
+                   activation=tf.nn.relu)
+                
+                # 2. stack the lstm to form multi-layers
+                cell = tf.contrib.rnn.MultiRNNCell(
+                    [lstm_cell]*self.num_layers, state_is_tuple=True)
+            else:
+                print("the tensorflow version's code is not define")
+            
+            ## For the static inputs
+            # start to forward the data to rnn
+            final_inputs = tf.unstack(inputs_seq, num=self.max_input_length, axis=0)
+            #print("the final_inputs is: " + str(len(final_inputs)))
+            #print(final_inputs[1].shape)
+
+            assert self.max_input_length%self.time_steps==0, "the max_input_length must be divisible by the self.time_steps"
+            sub_seq_num = int(self.max_input_length/self.time_steps)
+            print("the total sub-seq num is: " + str(sub_seq_num))    
+            
+            
+            
+            if self.conf['reuse_sub_seq_state'] == 'True':
+                print("reuse the former sub-seq output state")
+                sub_state = None
+                outputs = []
+                for x in range(sub_seq_num):
+                    # remerber to resue the variable for different sub-seq in the same utt
+                    if x > 0: tf.get_variable_scope().reuse_variables()
+                    sub_inputs = final_inputs[x*self.time_steps : (x+1)*self.time_steps]
+                    sub_outputs, sub_state = tf.contrib.rnn.static_rnn(cell, sub_inputs, initial_state=sub_state, dtype=tf.float32)
+                    outputs += sub_outputs
+            else:
+                print("not use the former sub-seq output state")
+                sub_inputs = []
+                # put all the sub-seq into the list and concat in batch
+                # this process is like: 
+                # tran the data from a list of [20, batch, fre-dim], the list size stands for the sub_seq_num
+                # the result has the form like: 20, batch-size*sub_seq_num, fre-dim
+                for x in range(sub_seq_num):
+                    sub_tmp = final_inputs[x*self.time_steps : (x+1)*self.time_steps]
+                    sub_tmp_stack = tf.stack(sub_tmp, axis=0)
+                    sub_inputs.append(sub_tmp_stack)
+                result = tf.concat(sub_inputs, 1)
+                #print(result.shape)
+                
+                final_inputs = tf.unstack(result, self.time_steps, axis=0)
+                    
+                print("final_inputs is: " + str(len(final_inputs)))
+                outputs, state = tf.contrib.rnn.static_rnn(cell, final_inputs, dtype=tf.float32)
+                outputs = tf.stack(outputs, axis=0)
+                outputs = tf.reshape(outputs, tf.stack([self.time_steps*sub_seq_num, -1, self.num_proj])) 
+                outputs = tf.unstack(outputs, self.time_steps*sub_seq_num, axis=0)
+
+            print("the lstm outputs is: ")
+            print("List with len: "+ str(len(outputs)) + " each element is 2-D tensor: " + str(outputs[0].shape))
             
             return outputs
             

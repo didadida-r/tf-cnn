@@ -1,0 +1,9 @@
+nohup: ignoring input
+============================================================================
+             Train and decode neural network acoustic model               
+============================================================================
+start a new sge
+queue.pl: Error, unfinished job no longer exists, log is in sge.log, last line is 'validation loss at step 100: 6.896654, the acc is: 0.045006', syncfile is ./q/sync/done.10355, return status of qstat was 256
+Possible reasons: a) Exceeded time limit? -> Use more jobs! b) Shutdown/Frozen machine? -> Run again!  Qmaster output was: Following jobs do not exist: 
+205350
+

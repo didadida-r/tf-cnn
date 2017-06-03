@@ -15,7 +15,7 @@ from decoder import Decoder
 class Nnet(object):
     '''a class for a neural network that can be used together with Kaldi'''
 
-    def __init__(self, conf, input_dim, num_labels):
+    def __init__(self, conf, input_dim, num_labels, max_input_length):
         '''
         Nnet constructor
 
@@ -23,6 +23,7 @@ class Nnet(object):
             conf: nnet configuration
             input_dim: network input dimension
             num_labels: number of target labels
+            max_input_length: the max_input_length of all the train utt
         '''
 
         #get nnet structure configs
@@ -85,7 +86,7 @@ class Nnet(object):
         self.dnn = DNN(
             num_labels, int(self.conf['num_hidden_layers']),
             int(self.conf['num_hidden_units']), conf, activation,
-            int(self.conf['add_layer_period']) > 0)
+            max_input_length, int(self.conf['add_layer_period']) > 0)
 
     def train(self, dispenser):
         '''

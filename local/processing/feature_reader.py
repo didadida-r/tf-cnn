@@ -10,7 +10,7 @@ class FeatureReader(object):
     them (cmvn and splicing)'''
 
     def __init__(self, scpfile, utt2spkfile,
-                 context_width, max_input_length):
+                 context_left, context_right, max_input_length):
         '''
         create a FeatureReader object
 
@@ -35,7 +35,9 @@ class FeatureReader(object):
         self.utt2spk = readfiles.read_utt2spk(utt2spkfile)
 
         #store the context width
-        self.context_width = context_width
+        #self.context_width = context_width
+        self.context_left = context_left
+        self.context_right = context_right
 
         #store the max length
         self.max_input_length = max_input_length
@@ -57,7 +59,7 @@ class FeatureReader(object):
         #utt_mat = apply_cmvn(utt_mat, cmvn_stats)
 
         #splice the utterance
-        utt_mat = splice(utt_mat, self.context_width)
+        utt_mat = splice(utt_mat, self.context_left, self.context_right)
 
         return utt_id, utt_mat, looped
 
@@ -116,7 +118,7 @@ def apply_cmvn(utt, stats):
     #return mean and variance normalised utterance
     return np.divide(np.subtract(utt, mean), np.sqrt(variance))
 
-def splice(utt, context_width):
+def splice(utt, context_left, context_right):
     '''
     splice the utterance
 
@@ -131,30 +133,30 @@ def splice(utt, context_width):
     '''
 
     #return None if utterance is too short
-    if utt.shape[0]<1+2*context_width:
+    context_width = 1+(context_left+context_right)
+    if utt.shape[0] < context_width:
         return None
 
     #create spliced utterance holder
     utt_spliced = np.zeros(
-        shape=[utt.shape[0], utt.shape[1]*(1+2*context_width)],
+        shape=[utt.shape[0], utt.shape[1]*context_width],
         dtype=np.float32)
 
     #middle part is just the uttarnce
-    utt_spliced[:, context_width*utt.shape[1]:
-                (context_width+1)*utt.shape[1]] = utt
+    utt_spliced[:, context_left*utt.shape[1]:(context_left+1)*utt.shape[1]] = utt
 
-    for i in range(context_width):
-
+    for i in range(context_left):
         #add left context
         utt_spliced[i+1:utt_spliced.shape[0],
-                    (context_width-i-1)*utt.shape[1]:
-                    (context_width-i)*utt.shape[1]] = utt[0:utt.shape[0]-i-1, :]
-        #print(utt_spliced)            
-
+                    (context_left-i-1)*utt.shape[1]:
+                    (context_left-i)*utt.shape[1]] = utt[0:utt.shape[0]-i-1, :]
+            
+    for i in range(context_right):        
          #add right context
         utt_spliced[0:utt_spliced.shape[0]-i-1,
-                    (context_width+i+1)*utt.shape[1]:
-                    (context_width+i+2)*utt.shape[1]] = utt[i+1:utt.shape[0], :]
-        #print(utt_spliced) 
+                    (context_right+i+1)*utt.shape[1]:
+                    (context_right+i+2)*utt.shape[1]] = utt[i+1:utt.shape[0], :]
+
+        
 
     return utt_spliced

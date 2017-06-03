@@ -37,6 +37,10 @@ nnet_name = cnn_conf['name']
 batch_reader_nj = 8
 # the num job in gmm ali
 num_ali_jobs = int(config.get('directories','num_ali_jobs'))
+# the context
+context_left = int(config.get('nnet','context_left'))
+context_right = int(config.get('nnet','context_right'))
+total_context = context_left + context_right + 1
 # train 特征目录
 train_features_dir = config.get('directories','train_features')
 test_features_dir = config.get('directories','test_features')
@@ -56,7 +60,7 @@ if not os.path.isdir(store_expdir + '/' + nnet_name):
 # 网络输入维度
 reader = ark.ArkReader(train_features_dir + '/feats.scp')
 _, features, _ = reader.read_next_utt()     # 这里是没有经过拼接的
-input_dim = features.shape[1] * (int(cnn_conf['context_width'])*2 + 1) 
+input_dim = features.shape[1] * total_context
 print("the input dim is:" + str(input_dim))
 
 # 网络输出维度
@@ -66,7 +70,34 @@ num_labels = int(num_labels[0:len(num_labels)-1])
 numpdfs.close()
 print("the output labels is:" + str(num_labels))
 
-nnet = nnet.Nnet(config, input_dim, num_labels)
+# get the maxlength of all utt
+max_input_length = 0
+total_frames = 0
+with open(train_features_dir + "/utt2num_frames", 'r') as f:
+    line = f.readline()
+    while line:
+        x = line.split(' ')[1]
+        total_frames += int(x)
+        if int(x) > max_input_length:
+            max_input_length = int(x)
+        line = f.readline()
+# 将maxlength写入文件    
+with open(train_features_dir + "/maxlength", 'w') as f:
+    f.write("%s"%max_input_length)
+    print("the utt's maxlength is: " + str(max_input_length))   
+with open(train_features_dir + "/total_frames", 'w') as f:
+    f.write("%s"%total_frames)
+    print("the total frame in training set is: " + str(total_frames))
+    
+# pad the maxlength, so we can use easily divide the whole seq to sub-seq
+if dict(config.items('nnet'))['lstm_type'] == 3:
+    print("Use the lstm type 3")
+    time_steps = int(dict(config.items('lstm3'))['time_steps'])
+    print("And we will pad the max-length of all utt to be divisible by " + str(time_steps))
+    max_input_length = max_input_length - max_input_length%time_steps + time_steps
+    
+
+nnet = nnet.Nnet(config, input_dim, num_labels, max_input_length)
 
 if TRAIN_NNET:
     # shuffle the examples on disk
@@ -86,29 +117,12 @@ if TRAIN_NNET:
     os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s/final.mdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + alidir,alifile))
     #os.system('copy-int-vector ark:"gunzip -c %s |" ark:- | ali-to-pdf %s/final.alimdl ark:- ark,t:- | gzip -c > %s'%(alifilebinary,expdir + '/' + alidir,alifile))
     
-    # get maxlength
-    max_input_length = 0
-    total_frames = 0
-    with open(train_features_dir + "/utt2num_frames", 'r') as f:
-        line = f.readline()
-        while line:
-            x = line.split(' ')[1]
-            total_frames += int(x)
-            if int(x) > max_input_length:
-                max_input_length = int(x)
-            line = f.readline()
-    # 将maxlength写入文件    
-    with open(train_features_dir + "/maxlength", 'w') as f:
-        f.write("%s"%max_input_length)
-        print("the utt's maxlength is: " + str(max_input_length))   
-    with open(train_features_dir + "/total_frames", 'w') as f:
-        f.write("%s"%total_frames)
-        print("the total frame in training set is: " + str(total_frames))
+
 
     # Here we directly use the feats in fmllr
     # So we ignore the cmvn process
     featreader = feature_reader.FeatureReader(train_features_dir + '/feats_shuffled.scp', 
-        train_features_dir + '/utt2spk', int(cnn_conf['context_width']), max_input_length)
+        train_features_dir + '/utt2spk', context_left, context_right, max_input_length)
     
     # create a target coder
     coder = target_coder.AlignmentCoder(lambda x, y: x, num_labels)
@@ -155,7 +169,7 @@ if DEV_NNET:
     with open(dev_features_dir + '/maxlength', 'r') as fid:
         max_length = int(fid.read())
     featreader = feature_reader.FeatureReader(dev_features_dir + '/feats.scp', dev_features_dir + '/utt2spk', 
-        int(config.get('nnet', 'context_width')), max_length)
+        context_left, context_right, max_length)
 
     #create an ark writer for the likelihoods
     if os.path.isfile(decodedir + '/likelihoods.ark'):
@@ -216,7 +230,7 @@ if TEST_NNET:
     with open(test_features_dir + '/maxlength', 'r') as fid:
         max_length = int(fid.read())
     featreader = feature_reader.FeatureReader(test_features_dir + '/feats.scp', test_features_dir + '/utt2spk', 
-        int(config.get('nnet', 'context_width')), max_length)
+        context_left, context_right, max_length)
 
     #create an ark writer for the likelihoods
     if os.path.isfile(decodedir + '/likelihoods.ark'):
